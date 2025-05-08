@@ -27,7 +27,7 @@ int magnetStrength = 0;
 unsigned long randomSpawnRate = 0;  //stores next random spawn time
 
 const int neoPixelPin = 5;  //control pin for the LED strip
-const int numPixels = 24;   //number of pixels in the strip
+const int numPixels = 60;   //number of pixels in the strip
 
 
 struct FlashingLED {
@@ -41,13 +41,19 @@ struct FlashingLED {
 };
 
 FlashingLED flashingLeds[MAX_FLASHING_LEDS];  //array for active LEDs
-activeLedVector<FlashingLED> vector(flashingLeds);
+//activeLedVector<FlashingLED> vector(flashingLeds);
 
 // initialize the LED strip
 Adafruit_NeoPixel strip = Adafruit_NeoPixel(numPixels, neoPixelPin, NEO_GRB + NEO_KHZ800);
 
 int usedCount = 0;
 int used[MAX_FLASHING_LEDS];
+
+bool isClockwise;
+float lastAngle;
+
+unsigned long previousMillis = 0;
+unsigned long clockwiseCheckInterval = 500;
 
 void setup()
 {
@@ -84,8 +90,68 @@ void setup()
 void loop()
 {
   //led:
+
+  unsigned long currentMillis = millis();
+  if (currentMillis - previousMillis > clockwiseCheckInterval) {
+    previousMillis = currentMillis;
+    lastAngle = as5600.rawAngle() * AS5600_RAW_TO_DEGREES;
+  }
+
+
+  if ((as5600.rawAngle() * AS5600_RAW_TO_DEGREES) < lastAngle){
+    isClockwise = true;
+  }else if ((as5600.rawAngle() * AS5600_RAW_TO_DEGREES) > lastAngle){
+    isClockwise = false;
+  }
+  // Serial.print("last Angle: ");
+  // Serial.println(lastAngle);
+  // Serial.print("current angle: ");
+  // Serial.println(as5600.rawAngle() * AS5600_RAW_TO_DEGREES);
+  Serial.print("Clockwise: ");
+  Serial.println(isClockwise);
   updateFlashingLEDs();  //update all flashing LEDs
 
+  
+
+  static unsigned long lastTrigger = 0;
+  if (millis() - lastTrigger > randomSpawnRate) {  //check if its time to spawn a new LED
+    lastTrigger = millis();
+    startFlashingLED(GetRandomPixel());  //start the LED flashing
+  }
+  
+  
+  randomSpawnRate = random(LED_SPAWN_MIN, LED_SPAWN_MAX); //randomize the next spawn rate 
+
+  //magnetic:
+  //  Serial.print(millis());
+  //  Serial.print("\t");
+  ///Serial.print(as5600.readAngle());
+  ///Serial.print("\t");
+  //Serial.println(as5600.rawAngle());
+  ////Serial.println(as5600.rawAngle() * AS5600_RAW_TO_DEGREES);
+
+  int aimedAtLed = (as5600.rawAngle() * AS5600_RAW_TO_DEGREES) / 6;
+  
+  for( int i = 0; i < usedCount; i++){
+    if(flashingLeds[i].pixel >= aimedAtLed - 1 && flashingLeds[i].pixel <= aimedAtLed +1){
+
+
+      Serial.println("HIT!!!!!!!!!!!!!!!!");
+      flashingLeds[i].active = false;
+      strip.setPixelColor(flashingLeds[i].pixel, 0);  //turn off LED
+      flashingLeds[i].ledOn = false;
+
+      strip.show();
+      usedCount--;
+      used[i] = 0;
+      
+    }
+  }
+  
+  delay(100);
+}
+
+int GetRandomPixel(){
   //get a random pixel and make sure its not been used recently:
   int randomPixel;
   bool isDuplicate;
@@ -104,10 +170,6 @@ void loop()
   } while (isDuplicate);  //loop until randomPixel is a pixel not in the used array
 
 
-
-  flashingLeds
-
-
   //add randomPixel to used array
   if (usedCount < MAX_FLASHING_LEDS) {
     used[usedCount++] = randomPixel;
@@ -117,39 +179,8 @@ void loop()
     usedCount = 0;
     used[usedCount++] = randomPixel;
   }
-
-  static unsigned long lastTrigger = 0;
-  if (millis() - lastTrigger > randomSpawnRate) {  //check if its time to spawn a new LED
-    lastTrigger = millis();
-    startFlashingLED(randomPixel);  //start the LED flashing
-  }
-  
-  
-  randomSpawnRate = random(LED_SPAWN_MIN, LED_SPAWN_MAX); //randomize the next spawn rate 
-
-  //magnetic:
-  //  Serial.print(millis());
-  //  Serial.print("\t");
-  Serial.print(as5600.readAngle());
-  Serial.print("\t");
-  //Serial.println(as5600.rawAngle());
-  Serial.println(as5600.rawAngle() * AS5600_RAW_TO_DEGREES);
-
-  int aimedAtLed = (as5600.rawAngle() * AS5600_RAW_TO_DEGREES) / 6;
-  for( int i = 0; i < usedCount, i++){
-    if(flashingLeds[i].pixel >= aimedAtLed - 1 && flashingLeds[i].pixel <= aimedAtLed +1){
-      flashingLeds[i].active = false;
-      flashingLeds[i].ledOn = false;
-      usedCount--;
-      used[i] = 0;
-      
-    }
-  }
-  
-  delay(100);
+  return randomPixel;
 }
-
-
 
 void startFlashingLED(int pixel) {
   for (int i = 0; i < MAX_FLASHING_LEDS; i++) { //find an inactive LED slot
@@ -177,17 +208,18 @@ void updateFlashingLEDs() {
 
     if (currentTime - led.startTime >= LED_LIFESPAN) {  //check if LED lifespan is up
       strip.setPixelColor(led.pixel, 0);  //turn off LED
+      led.ledOn = false;
       strip.show();  // update the strip
       tone(8, 100, 100);  //make sound when LED is missed
       led.active = false; 
       for (int j = 0; j < usedCount; j++){
         if (used[j] == led.pixel)
         {
-          flashingLed[i] // remove it
+          used[j] = 0;
+          usedCount--;
         }
 
       }
-      usedCount--;
 
       continue;
     }
