@@ -50,13 +50,14 @@ const int DIO2 = 5;
 TM1637 comboDisplay(CLK2, DIO2);
 
 // constants won't change. They're used here to set pin numbers:
-const int buttonPin = 0;  // the number of the pushbutton pin
+const int buttonPin = 7;  // the number of the pushbutton pin
 
 // variables will change:
 int buttonState = 0;  // variable for reading the pushbutton status
 int lastButtonState = LOW;  // the previous reading from the input pin
 
-
+unsigned long lastDebounceTime = 0;  // the last time the output pin was toggled
+unsigned long debounceDelay = 50;    // the debounce time; increase if the output 
 
 void setup() {
     Serial.begin(115200);
