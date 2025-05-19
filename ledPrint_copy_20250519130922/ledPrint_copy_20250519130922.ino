@@ -10,6 +10,7 @@
  * @url https://github.com/DFRobot/DFRobot_LedDisplayModule
  */
 #include "DFRobot_LedDisplayModule.h"
+#include <SoftwareWire.h>
 /**
  * DFRobot_LedDisplayModule Constructor
  * Parameter &wire  Wire
@@ -27,6 +28,7 @@
  * DFRobot_LedDisplayModule Constructor
  * In default, the IIC address of 4 bits digital tube is 0x48 
  */
+//SoftwareWire myWire(12, 13);
 DFRobot_LedDisplayModule LED(&Wire, 0x48);
 
 unsigned long startTime;

@@ -81,7 +81,14 @@ bool gameStarted = false;
 unsigned long lastDebounceTime = 0;  // the last time the output pin was toggled
 unsigned long debounceDelay = 50;    // the debounce time; increase if the output 
 
+unsigned long clockStartTime;
+const unsigned long clockDuration = 60000; // 60 seconds in milliseconds
+unsigned long previousPrint = 0;
+const unsigned long printInterval = 100; // print every 100 ms
+bool timerRunning = true;
 
+char buf[3];
+int remaining;
 
 void setup()
 {
@@ -120,10 +127,12 @@ void setup()
 
   scoreDisplay.displayStr((char *)"lets");
   comboDisplay.displayStr((char *)"play");
-
-
+  
+  
   // initialize the pushbutton pin as an input:
   pinMode(buttonPin, INPUT_PULLUP);
+
+  clockStartTime = millis(); // Start the timer
 
   //checkMagnetPresence();
 }
@@ -149,7 +158,6 @@ void loop() {
 
         // only toggle the LED if the new button state is HIGH
         if (buttonState == LOW) {
-          Serial.println("Button pressed");
           startPlayback(hit, sizeof(hit));
           gameStarted = true;
           StartGame();
@@ -162,6 +170,29 @@ void loop() {
 
   // If game has started, you can run ongoing game logic
   if (gameStarted) {
+    unsigned long clockCurrentMillis = millis();
+    unsigned long elapsed = clockCurrentMillis - clockStartTime;
+
+    // Only print every 100 ms
+    if (clockCurrentMillis - previousPrint >= printInterval) {
+      previousPrint = clockCurrentMillis;
+
+      remaining = (clockDuration - elapsed + 999) / 1000;
+      if (remaining < 0) remaining = 0;
+
+      sprintf(buf, "%02d%02d", combo, remaining);  
+      comboDisplay.displayStr(buf);
+
+      // If time's up
+      if (elapsed >= clockDuration) {
+        gameStarted = false;
+        scoreDisplay.displayStr((char *)"Turn");
+        comboDisplay.displayStr((char *)"0ver");
+        delay(3000);
+        scoreDisplay.displayStr((char *)"lets");
+        comboDisplay.displayStr((char *)"play");
+      }
+    }
     Game();
   }
 }
@@ -169,7 +200,13 @@ void loop() {
 void StartGame(){
   int combo = 1;
   int score = 0;
+  scoreDisplay.displayStr((char *)"0000");
+  clockStartTime = millis();  // Reset timer start here too
+  timerRunning = true;
+  strip.clear();    //turn off all LEDs
+  strip.show();     //update the strip
 
+  memset(used, 0, sizeof(used));
 }
 
 void Game(){
@@ -247,11 +284,11 @@ void Game(){
       
       if (combo < 16){
         combo = combo * 2;
-        comboDisplay.displayNum(combo);
       }
 
       score = score + (10*combo);
-      scoreDisplay.displayNum(score);
+      sprintf(buf, "%04d", score);  
+      scoreDisplay.displayStr(buf);
     }
   }
 }
@@ -320,7 +357,6 @@ void updateFlashingLEDs() {
       interrupts();
       //startPlayback(miss, sizeof(miss));
       combo = 1;
-      comboDisplay.displayNum(combo); 
       for (int j = 0; j < usedCount; j++){
         if (used[j] == led.pixel)
         {
