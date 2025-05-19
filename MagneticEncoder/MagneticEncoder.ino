@@ -116,6 +116,8 @@ void setup()
 
   // initialize the pushbutton pin as an input:
   pinMode(buttonPin, INPUT);
+
+  //checkMagnetPresence();
 }
 
 
@@ -137,8 +139,8 @@ void loop()
   }
   // Serial.print("last Angle: ");
   // Serial.println(lastAngle);
-  Serial.print("current angle: ");
-  Serial.println(as5600.rawAngle() * AS5600_RAW_TO_DEGREES);
+  //Serial.print("current angle: ");
+  //Serial.println(as5600.rawAngle() * AS5600_RAW_TO_DEGREES);
   //Serial.print("Clockwise: ");
   //Serial.println(isClockwise);
   updateFlashingLEDs();  //update all flashing LEDs
@@ -162,19 +164,28 @@ void loop()
   //Serial.println(as5600.rawAngle());
   ////Serial.println(as5600.rawAngle() * AS5600_RAW_TO_DEGREES);
 
-  int aimedAtLed = (as5600.rawAngle() * AS5600_RAW_TO_DEGREES) / (360/61);
-  Serial.print("aimed at led: ");
-  Serial.println(aimedAtLed);
+  int aimedAtLed = round(((as5600.rawAngle() * AS5600_RAW_TO_DEGREES) / 360.0) * 61) % 61;
+  aimedAtLed = (numPixels) - aimedAtLed;  // Reverse direction
+  aimedAtLed -= 1;
+  //Serial.print("aimed at led: ");
+  //Serial.println(aimedAtLed);
   
   for( int i = 0; i < usedCount; i++){
+    if (!flashingLeds[i].active) continue;  //skip inactive LEDs
+
+    //Serial.print("pixel: ");
+    //Serial.println(flashingLeds[i].pixel);
+
     if(flashingLeds[i].pixel >= aimedAtLed - 1 && flashingLeds[i].pixel <= aimedAtLed +1){
 
-      
-      Serial.print("led pixel: ");
-      Serial.println(flashingLeds[i].pixel);
+      //Serial.print("aimed at led: ");
+      //Serial.println(aimedAtLed);
+  
+      //Serial.print("led pixel: ");
+      //Serial.println(flashingLeds[i].pixel);
 
+      //Serial.println("HIT!!!!!!!!!!!!!!!!");
 
-      Serial.println("HIT!!!!!!!!!!!!!!!!");
       flashingLeds[i].active = false;
       strip.setPixelColor(flashingLeds[i].pixel, 0);  //turn off LED
       flashingLeds[i].ledOn = false;
@@ -194,8 +205,7 @@ void loop()
       scoreDisplay.displayNum(score);
     }
   }
-
-  delay(100);
+  //delay(100);
 }
 
 int GetRandomPixel(){
@@ -256,20 +266,23 @@ void updateFlashingLEDs() {
     if (currentTime - led.startTime >= LED_LIFESPAN) {  //check if LED lifespan is up
       strip.setPixelColor(led.pixel, 0);  //turn off LED
       led.ledOn = false;
+      led.active = false;
       strip.show();  // update the strip
       //startPlayback(miss, sizeof(miss));
       combo = 1;
-      comboDisplay.displayNum(combo);
-      led.active = false; 
+      comboDisplay.displayNum(combo); 
       for (int j = 0; j < usedCount; j++){
         if (used[j] == led.pixel)
         {
-          used[j] = 0;
+          // Shift all elements after j to the left by one
+          for (int k = j; k < usedCount - 1; k++) {
+            used[k] = used[k + 1];
+        }
           usedCount--;
+          break;
         }
 
       }
-
       continue;
     }
 
@@ -313,5 +326,5 @@ void checkMagnetPresence()
   //MD: OK magnet - 110111 - DEC: 55
 
   Serial.println("Magnet found!");
-  //delay(1000); 
+  delay(1000); 
 }      
