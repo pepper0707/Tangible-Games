@@ -63,8 +63,7 @@ FlashingLED flashingLeds[MAX_FLASHING_LEDS];  //array for active LEDs
 
 Adafruit_NeoPixel strip = Adafruit_NeoPixel(numPixels, neoPixelPin, NEO_GRB + NEO_KHZ800);    // initialize the LED strip
 
-int usedCount = 0;
-int used[MAX_FLASHING_LEDS];
+
 
 bool isClockwise;
 float lastAngle;
@@ -193,15 +192,15 @@ void loop() {
 }
 
 void StartGame(){
-  int combo = 1;
-  int score = 0;
+  combo = 1;
+  score = 0;
   scoreDisplay.displayStr((char *)"0000");
   clockStartTime = millis();                  // Reset timer start here too
   timerRunning = true;
   strip.clear();                              //turn off all LEDs
   strip.show();                               //update the strip
 
-  memset(used, 0, sizeof(used));
+  memset(flashingLeds, 0, sizeof(flashingLeds));
 }
 
 void Game(){
@@ -251,7 +250,7 @@ void Game(){
   //Serial.print("aimed at led: ");
   //Serial.println(aimedAtLed);
   
-  for( int i = 0; i < usedCount; i++){
+  for( int i = 0; i < MAX_FLASHING_LEDS; i++){
     if (!flashingLeds[i].active) continue;  //skip inactive LEDs
 
     if(flashingLeds[i].pixel >= aimedAtLed - 1 && flashingLeds[i].pixel <= aimedAtLed +1){
@@ -267,8 +266,6 @@ void Game(){
       flashingLeds[i].ledOn = false;
 
       strip.show();
-      usedCount--;
-      used[i] = 0;
 
       //startPlayback(hit, sizeof(hit));
       
@@ -283,31 +280,27 @@ void Game(){
   }
 }
 
-int GetRandomPixel(){                         //get a random pixel and make sure its not been used recently:
+int GetRandomPixel() {  //get a random pixel and make sure its not been used recently:
   int randomPixel;
   bool isDuplicate;
+  int attempts = 0;
 
   do {
-    randomPixel = random(0, numPixels);       //generate a random pixel
+    randomPixel = random(0, numPixels);  //generate a random pixel
     isDuplicate = false;
 
-    for (int i = 0; i < usedCount; i++) {     //check if the pixel has been used
-      if (used[i] == randomPixel) {
+    for (int i = 0; i < MAX_FLASHING_LEDS; i++) {
+      //check if the pixel has been used
+      if (flashingLeds[i].active && flashingLeds[i].pixel == randomPixel) {
         isDuplicate = true;
         break;
       }
     }
-  } while (isDuplicate);                      //loop until randomPixel is a pixel not in the used array
+    attempts++;
+    if (attempts > 10) break;  // prevent infinite loops if LEDs are full
+  } while (isDuplicate);       //loop until randomPixel is a pixel not in the used array
 
 
-  //add randomPixel to used array
-  if (usedCount < MAX_FLASHING_LEDS) {
-    used[usedCount++] = randomPixel;
-  } else {
-    memset(used, 0, sizeof(used));            //reset the array when full
-    usedCount = 0;
-    used[usedCount++] = randomPixel;
-  }
   return randomPixel;
 }
 
@@ -342,17 +335,7 @@ void updateFlashingLEDs() {
       strip.show();                                                     // update the strip
       //startPlayback(miss, sizeof(miss));
       combo = 1;
-      for (int j = 0; j < usedCount; j++){
-        if (used[j] == led.pixel)
-        {
-          for (int k = j; k < usedCount - 1; k++) {                     // Shift all elements after j to the left by one
-            used[k] = used[k + 1];
-        }
-          usedCount--;
-          break;
-        }
-
-      }
+    
       continue;
     }
 
