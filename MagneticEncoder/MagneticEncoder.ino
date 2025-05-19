@@ -123,18 +123,20 @@ void setup()
 
 void loop()
 {
+
+  float angle = as5600.rawAngle() * AS5600_RAW_TO_DEGREES;
   //led:
 
   unsigned long currentMillis = millis();
   if (currentMillis - previousMillis > clockwiseCheckInterval) {
     previousMillis = currentMillis;
-    lastAngle = as5600.rawAngle() * AS5600_RAW_TO_DEGREES;
+    lastAngle = angle;
   }
 
 
-  if ((as5600.rawAngle() * AS5600_RAW_TO_DEGREES) < lastAngle){
+  if (angle < lastAngle){
     isClockwise = true;
-  }else if ((as5600.rawAngle() * AS5600_RAW_TO_DEGREES) > lastAngle){
+  }else if (angle > lastAngle){
     isClockwise = false;
   }
   // Serial.print("last Angle: ");
@@ -164,7 +166,7 @@ void loop()
   //Serial.println(as5600.rawAngle());
   ////Serial.println(as5600.rawAngle() * AS5600_RAW_TO_DEGREES);
 
-  int aimedAtLed = round(((as5600.rawAngle() * AS5600_RAW_TO_DEGREES) / 360.0) * 61) % 61;
+  int aimedAtLed = round((angle / 360.0) * 61) % 61;
   aimedAtLed = (numPixels) - aimedAtLed;  // Reverse direction
   aimedAtLed -= 1;
   //Serial.print("aimed at led: ");
