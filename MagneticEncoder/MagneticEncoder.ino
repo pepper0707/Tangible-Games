@@ -32,8 +32,8 @@ TM1637 comboDisplay(4, 5);
 const int buttonPin = 7;  // the number of the pushbutton pin
 
 // variables will change:
-int buttonState;  // variable for reading the pushbutton status
-int lastButtonState = LOW;  // the previous reading from the input pin
+int buttonState;              // variable for reading the pushbutton status
+int lastButtonState = LOW;    // the previous reading from the input pin
 
 
 //Led Stuff:
@@ -50,10 +50,10 @@ const int numPixels = 60;   //number of pixels in the strip
 
 struct FlashingLED {
   bool active = false;  
-  int pixel;            //pixel number for the LED
-  unsigned long startTime;   //start time of LED flash
+  int pixel;                      //pixel number for the LED
+  unsigned long startTime;        //start time of LED flash
   unsigned long lastToggleTime;   //last time the LED was toggled
-  int delayTime;             //time between toggles
+  int delayTime;                  //time between toggles
   bool ledOn;                
   uint32_t color;            
 };
@@ -61,8 +61,7 @@ struct FlashingLED {
 FlashingLED flashingLeds[MAX_FLASHING_LEDS];  //array for active LEDs
 //activeLedVector<FlashingLED> vector(flashingLeds);
 
-// initialize the LED strip
-Adafruit_NeoPixel strip = Adafruit_NeoPixel(numPixels, neoPixelPin, NEO_GRB + NEO_KHZ800);
+Adafruit_NeoPixel strip = Adafruit_NeoPixel(numPixels, neoPixelPin, NEO_GRB + NEO_KHZ800);    // initialize the LED strip
 
 int usedCount = 0;
 int used[MAX_FLASHING_LEDS];
@@ -78,13 +77,13 @@ int score = 0;
 
 bool gameStarted = false;
 
-unsigned long lastDebounceTime = 0;  // the last time the output pin was toggled
-unsigned long debounceDelay = 50;    // the debounce time; increase if the output 
+unsigned long lastDebounceTime = 0;             // the last time the output pin was toggled
+unsigned long debounceDelay = 50;               // the debounce time; increase if the output 
 
 unsigned long clockStartTime;
-const unsigned long clockDuration = 60000; // 60 seconds in milliseconds
+const unsigned long clockDuration = 60000;      // 60 seconds in milliseconds
 unsigned long previousPrint = 0;
-const unsigned long printInterval = 100; // print every 100 ms
+const unsigned long printInterval = 100;        // print every 100 ms
 bool timerRunning = true;
 
 char buf[3];
@@ -93,13 +92,13 @@ int remaining;
 void setup()
 {
   //led:
-  randomSeed(analogRead(0));  //gets random seed using random data from empty analog pin
+  randomSeed(analogRead(0));          //gets random seed using random data from empty analog pin
   
-  randomSpawnRate = 1000;  //first LED spawns after 1 second
+  randomSpawnRate = 1000;             //first LED spawns after 1 second
   
-  strip.begin();    //initialize the LED strip
-  strip.clear();    //turn off all LEDs
-  strip.show();     //update the strip
+  strip.begin();                    //initialize the LED strip
+  strip.clear();                   //turn off all LEDs
+  strip.show();                   //update the strip
 
   //magnetic
   while(!Serial);
@@ -164,17 +163,14 @@ void loop() {
         }
       }
     }
-    // save the reading. Next time through the loop, it'll be the lastButtonState:
-    lastButtonState = reading;
+    lastButtonState = reading;                                    // save the reading. Next time through the loop, it'll be the lastButtonState:
   }
 
-  // If game has started, you can run ongoing game logic
-  if (gameStarted) {
+  if (gameStarted) {                                              // If game has started, you can run ongoing game logic
     unsigned long clockCurrentMillis = millis();
     unsigned long elapsed = clockCurrentMillis - clockStartTime;
 
-    // Only print every 100 ms
-    if (clockCurrentMillis - previousPrint >= printInterval) {
+    if (clockCurrentMillis - previousPrint >= printInterval) {    // Only print every 100 ms
       previousPrint = clockCurrentMillis;
 
       remaining = (clockDuration - elapsed + 999) / 1000;
@@ -183,8 +179,7 @@ void loop() {
       sprintf(buf, "%02d%02d", combo, remaining);  
       comboDisplay.displayStr(buf);
 
-      // If time's up
-      if (elapsed >= clockDuration) {
+      if (elapsed >= clockDuration) {                               // If time's up
         gameStarted = false;
         scoreDisplay.displayStr((char *)"Turn");
         comboDisplay.displayStr((char *)"0ver");
@@ -201,10 +196,10 @@ void StartGame(){
   int combo = 1;
   int score = 0;
   scoreDisplay.displayStr((char *)"0000");
-  clockStartTime = millis();  // Reset timer start here too
+  clockStartTime = millis();                  // Reset timer start here too
   timerRunning = true;
-  strip.clear();    //turn off all LEDs
-  strip.show();     //update the strip
+  strip.clear();                              //turn off all LEDs
+  strip.show();                               //update the strip
 
   memset(used, 0, sizeof(used));
 }
@@ -231,16 +226,16 @@ void Game(){
   //Serial.println(as5600.rawAngle() * AS5600_RAW_TO_DEGREES);
   //Serial.print("Clockwise: ");
   //Serial.println(isClockwise);
-  updateFlashingLEDs();  //update all flashing LEDs
+  updateFlashingLEDs();                                     //update all flashing LEDs
 
   static unsigned long lastTrigger = 0;
-  if (millis() - lastTrigger > randomSpawnRate) {  //check if its time to spawn a new LED
+  if (millis() - lastTrigger > randomSpawnRate) {           //check if its time to spawn a new LED
     lastTrigger = millis();
-    startFlashingLED(GetRandomPixel());  //start the LED flashing
+    startFlashingLED(GetRandomPixel());                     //start the LED flashing
   }
   
   
-  randomSpawnRate = random(LED_SPAWN_MIN, LED_SPAWN_MAX); //randomize the next spawn rate 
+  randomSpawnRate = random(LED_SPAWN_MIN, LED_SPAWN_MAX);   //randomize the next spawn rate 
 
   //magnetic:
   //  Serial.print(millis());
@@ -251,7 +246,7 @@ void Game(){
   ////Serial.println(as5600.rawAngle() * AS5600_RAW_TO_DEGREES);
 
   int aimedAtLed = round((angle / 360.0) * 61) % 61;
-  aimedAtLed = (numPixels) - aimedAtLed;  // Reverse direction
+  aimedAtLed = (numPixels) - aimedAtLed;                    // Reverse direction
   aimedAtLed -= 1;
   //Serial.print("aimed at led: ");
   //Serial.println(aimedAtLed);
@@ -259,17 +254,12 @@ void Game(){
   for( int i = 0; i < usedCount; i++){
     if (!flashingLeds[i].active) continue;  //skip inactive LEDs
 
-    //Serial.print("pixel: ");
-    //Serial.println(flashingLeds[i].pixel);
-
     if(flashingLeds[i].pixel >= aimedAtLed - 1 && flashingLeds[i].pixel <= aimedAtLed +1){
 
       //Serial.print("aimed at led: ");
       //Serial.println(aimedAtLed);
-  
       //Serial.print("led pixel: ");
       //Serial.println(flashingLeds[i].pixel);
-
       //Serial.println("HIT!!!!!!!!!!!!!!!!");
 
       flashingLeds[i].active = false;
@@ -293,31 +283,28 @@ void Game(){
   }
 }
 
-int GetRandomPixel(){
-  //get a random pixel and make sure its not been used recently:
+int GetRandomPixel(){                         //get a random pixel and make sure its not been used recently:
   int randomPixel;
   bool isDuplicate;
 
   do {
-    randomPixel = random(0, numPixels);  //generate a random pixel
+    randomPixel = random(0, numPixels);       //generate a random pixel
     isDuplicate = false;
 
-    //check if the pixel has been used
-    for (int i = 0; i < usedCount; i++) {
+    for (int i = 0; i < usedCount; i++) {     //check if the pixel has been used
       if (used[i] == randomPixel) {
         isDuplicate = true;
         break;
       }
     }
-  } while (isDuplicate);  //loop until randomPixel is a pixel not in the used array
+  } while (isDuplicate);                      //loop until randomPixel is a pixel not in the used array
 
 
   //add randomPixel to used array
   if (usedCount < MAX_FLASHING_LEDS) {
     used[usedCount++] = randomPixel;
   } else {
-    //reset the array when full
-    memset(used, 0, sizeof(used));
+    memset(used, 0, sizeof(used));            //reset the array when full
     usedCount = 0;
     used[usedCount++] = randomPixel;
   }
@@ -341,27 +328,24 @@ void startFlashingLED(int pixel) {
 }
 
 void updateFlashingLEDs() {
-  unsigned long currentTime = millis();  //get current time
+  unsigned long currentTime = millis();                                 //get current time
 
   for (int i = 0; i < MAX_FLASHING_LEDS; i++) {
-    if (!flashingLeds[i].active) continue;  //skip inactive LEDs
+    if (!flashingLeds[i].active) continue;                              //skip inactive LEDs
 
-    FlashingLED &led = flashingLeds[i];  //reference to the current LED
+    FlashingLED &led = flashingLeds[i];                                 //reference to the current LED
 
-    if (currentTime - led.startTime >= LED_LIFESPAN) {  //check if LED lifespan is up
-      strip.setPixelColor(led.pixel, 0);  //turn off LED
+    if (currentTime - led.startTime >= LED_LIFESPAN) {                  //check if LED lifespan is up
+      strip.setPixelColor(led.pixel, 0);                                //turn off LED
       led.ledOn = false;
       led.active = false;
-      noInterrupts();
-      strip.show();  // update the strip
-      interrupts();
+      strip.show();                                                     // update the strip
       //startPlayback(miss, sizeof(miss));
       combo = 1;
       for (int j = 0; j < usedCount; j++){
         if (used[j] == led.pixel)
         {
-          // Shift all elements after j to the left by one
-          for (int k = j; k < usedCount - 1; k++) {
+          for (int k = j; k < usedCount - 1; k++) {                     // Shift all elements after j to the left by one
             used[k] = used[k + 1];
         }
           usedCount--;
@@ -372,15 +356,15 @@ void updateFlashingLEDs() {
       continue;
     }
 
-    if (currentTime - led.lastToggleTime >= led.delayTime) {  //check if its time to toggle
-      led.lastToggleTime = currentTime;  //update the last toggle time
-      led.ledOn = !led.ledOn;  //toggle the LED state
+    if (currentTime - led.lastToggleTime >= led.delayTime) {      //check if its time to toggle
+      led.lastToggleTime = currentTime;                           //update the last toggle time
+      led.ledOn = !led.ledOn;                                     //toggle the LED state
 
       if (led.ledOn) {
-        strip.setPixelColor(led.pixel, led.color);  //LED on
+        strip.setPixelColor(led.pixel, led.color);                //LED on
       } else {
-        strip.setPixelColor(led.pixel, 0); //LED off
-        led.delayTime = max(30, led.delayTime * 0.7);  //decrease the delay to flash faster and faster
+        strip.setPixelColor(led.pixel, 0);                        //LED off
+        led.delayTime = max(30, led.delayTime * 0.7);             //decrease the delay to flash faster and faster
       }
       strip.show(); 
     }
