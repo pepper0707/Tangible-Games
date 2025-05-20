@@ -147,7 +147,6 @@ void setup()
   // initialize the pushbutton pin as an input:
   pinMode(buttonPin, INPUT_PULLUP);
 
-  clockStartTime = millis(); // Start the timer
 
   //checkMagnetPresence();
 }
@@ -175,7 +174,6 @@ void loop() {
         // only toggle the LED if the new button state is HIGH
         if (buttonState == LOW) {
           //startPlayback(hit, sizeof(hit));
-          gameStarted = true;
           StartGame();
         }
       }
@@ -212,25 +210,34 @@ void loop() {
 void StartGame() {
   combo = 1;
   score = 0;
-  clockStartTime = millis();  // Reset timer start here too
-  timerRunning = true;
-  strip.clear();  //turn off all LEDs
-  strip.show();   //update the strip
-
+  
   memset(flashingLeds, 0, sizeof(flashingLeds));
+
+  bool flipColor = true;
 
   for (int i = 3; i >= 1; i--) {
     startPlayback(secondCount, sizeof(secondCount));
     scoreDisplay.displayNum(i);
     comboDisplay.displayNum(i);
+    for (int i = 0; i < numPixels; i++) {
+        strip.setPixelColor(i, flipColor ? colorA : colorB);
+      }
+    strip.show();
+    flipColor = !flipColor;
     delay(1000);
   }
+
+  strip.clear();  //turn off all LEDs
+  strip.show();   //update the strip
 
   startPlayback(goCount, sizeof(goCount));
   scoreDisplay.displayStr((char *)"G0");
   comboDisplay.displayStr((char *)"G0");
   delay(1500);
   scoreDisplay.displayStr((char *)"0000");
+  gameStarted = true;
+  clockStartTime = millis(); // Start the timer
+
 }
 
 void Game(){
