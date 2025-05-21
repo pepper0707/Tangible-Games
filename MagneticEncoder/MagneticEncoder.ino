@@ -28,6 +28,7 @@ AS5600 as5600;   //  use default Wire
 //int magnetStrength = 0;
 
 const int addrHighScore = 0;
+const int addrName = 20;
 const int addrFlag = 100;  // Use a different EEPROM address as a flag
 const uint8_t initFlag = 123;  // Any unique value to act as an initialization marker
 
@@ -68,7 +69,6 @@ TM1637 scoreDisplay(CLK1, DIO1);
 TM1637 comboDisplay(CLK2, DIO2);
 
 const unsigned long debounceDelay = 50;               // the debounce time; increase if the output 
-const unsigned long holdThreshold = 3000; // e.g. 2 seconds
 
 struct FlashingLED {
   bool active = false;  
@@ -107,7 +107,7 @@ enum ButtonEvent {
 };
 
 unsigned long clockStartTime;
-const unsigned long clockDuration = 60000;      // 60 seconds in milliseconds
+const unsigned long clockDuration = 10000;      // 60 seconds in milliseconds
 unsigned long previousPrint = 0;
 const unsigned long printInterval = 100;        // print every 100 ms
 bool timerRunning = true;
@@ -121,12 +121,19 @@ unsigned long chasePreviousMillis = 0;
 bool useAltColor;
 
 uint16_t highScore;
+char highScoreName[5];
 
 unsigned long lastDisplayUpdate = 0;
 const unsigned long displayUpdateInterval = 1000;  // 1 second
 bool displayToggle = true;
 
 bool firstGame = true;
+
+char alphabet[] = {
+  '-', 'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', '0', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z'
+};
+
+unsigned long lastBlinkUpdate = 0;
 
 void setup()
 {
@@ -137,6 +144,13 @@ void setup()
   EEPROM.get(addrFlag, flag);
 
   if (flag != initFlag) {                           // First run,  initialize high score
+    char emptyName[5];
+    for (int i = 0; i < 4; i++) {
+      emptyName[i] = '-';
+    }
+    emptyName[4] = '\0';
+
+    EEPROM.put(addrName, emptyName);
     EEPROM.put(addrHighScore, (uint16_t)0);
     EEPROM.put(addrFlag, initFlag);
     Serial.println("EEPROM initialized.");
@@ -145,7 +159,7 @@ void setup()
   }
 
   EEPROM.get(addrHighScore, highScore);
-
+  EEPROM.get(addrName, highScoreName);
   //led:
   randomSeed(analogRead(0));          //gets random seed using random data from empty analog pin
   
@@ -194,7 +208,7 @@ void loop() {
     theaterChase();
     displayIdle();
 
-    switch (GetButtonState()) {
+    switch (GetButtonState(3000)) {
       case BUTTON_PRESS:
         StartGame();
         break;
@@ -229,7 +243,7 @@ void loop() {
   }
 }
 
-ButtonEvent GetButtonState() {
+ButtonEvent GetButtonState(unsigned long holdThreshold) {
   int reading = digitalRead(buttonPin);
   unsigned long currentMillis = millis();
   static unsigned long pressStartTime = 0;
@@ -273,16 +287,98 @@ void ResetHighScore(){
 }
 
 void endGame() {
-  
+  strip.clear();  //turn off all LEDs
+  strip.show();   //update the strip
+
   scoreDisplay.displayStr((char *)"Turn");
   comboDisplay.displayStr((char *)"0ver");
+
+  delay(2000);
+
+  NameInput();
   if(score > highScore){
+    
     highScore = score;
     EEPROM.put(addrHighScore, highScore);
   }
-  delay(3000);
+  
   gameStarted = false;
   firstGame = false;
+}
+
+void NameInput() {
+
+  char name[5] = { '\0' };  //room for 4 letters + null terminator
+  int lettersEntered = 0;
+  int pixel;
+  bool blinkToggle = true;
+
+  comboDisplay.clearDisplay();
+
+  while (lettersEntered < 4) {
+    float angle = as5600.rawAngle() * AS5600_RAW_TO_DEGREES;
+    int aimedAtLetter = (int)((angle / 360.0) * 27) % 27;
+    char currentLetter = alphabet[aimedAtLetter];
+
+    unsigned long currentMillis = millis();
+
+
+    strip.setPixelColor(pixel, 0);
+    strip.setPixelColor(pixel - 1, 0);
+    strip.setPixelColor(pixel + 1, 0);
+
+
+    char displayBuffer[5];
+    strcpy(displayBuffer, name);  // Copy what’s locked-in
+
+
+    if (currentMillis - lastBlinkUpdate >= 150) {
+      lastBlinkUpdate = currentMillis;
+      if (blinkToggle) {
+        displayBuffer[lettersEntered] = currentLetter;
+        comboDisplay.displayStr(displayBuffer);
+
+      } else {
+        displayBuffer[lettersEntered] = ' ';
+        comboDisplay.displayStr(displayBuffer);
+      }
+      displayBuffer[lettersEntered + 1] = '\0';  // Ensure null-termination
+
+      blinkToggle = !blinkToggle;
+    }
+
+    float ledsPerLetter = (float)numPixels / 27.0;  // 60/27 ≈ 2.22
+    const int pixelOffset = -2;
+    pixel = (numPixels - 1 - (int)(aimedAtLetter * ledsPerLetter) + pixelOffset) % numPixels;
+
+
+    strip.setPixelColor(pixel, colorA);
+    strip.setPixelColor(pixel - 1, colorA);
+    strip.setPixelColor(pixel + 1, colorA);
+    strip.show();
+
+    switch (GetButtonState(1000)) {
+      case BUTTON_PRESS:
+        //lock in the current letter
+        name[lettersEntered] = currentLetter;  //temporarily add the currently selected letter at the current position
+        lettersEntered++;
+        name[lettersEntered] = '\0';  //make sure null-terminator is in place (after the last real letter)
+        break;
+
+      case BUTTON_HOLD:
+        if (lettersEntered > 0) {
+          lettersEntered--;
+          name[lettersEntered] = '\0';  // Clear that slot
+        }
+        break;
+
+      default:
+        break;
+    }
+  }
+
+  strcpy(highScoreName, name);  //copy the contents of name into highScoreName
+  EEPROM.put(addrName, highScoreName);
 }
 
 void displayIdle(){
@@ -320,6 +416,9 @@ void StartGame() {
   score = 0;
   
   memset(flashingLeds, 0, sizeof(flashingLeds));
+
+  scoreDisplay.clearDisplay();
+  comboDisplay.clearDisplay();
 
   for (int i = 3; i >= 1; i--) {
     useAltColor = !useAltColor;
