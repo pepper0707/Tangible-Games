@@ -295,9 +295,8 @@ void endGame() {
 
   delay(2000);
 
-  NameInput();
   if(score > highScore){
-    
+    NameInput();
     highScore = score;
     EEPROM.put(addrHighScore, highScore);
   }
@@ -324,7 +323,7 @@ void NameInput() {
 
 
     strip.setPixelColor(pixel, 0);
-    strip.setPixelColor(pixel - 1, 0);
+    strip.setPixelColor(pixel - 1, 0);  
     strip.setPixelColor(pixel + 1, 0);
 
 
