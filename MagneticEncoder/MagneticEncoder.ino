@@ -77,12 +77,19 @@ struct FlashingLED {
   unsigned long lastToggleTime;   //last time the LED was toggled
   int delayTime;                  //time between toggles
   bool ledOn;                
-  uint32_t color;            
+  uint32_t color; 
+  bool beenPassed; //if the led has been passed but not collected           
 };
 
 FlashingLED flashingLeds[MAX_FLASHING_LEDS];  //array for active LEDs
 
 const unsigned long clockwiseCheckInterval = 250;
+
+const unsigned long clockDuration = 60000;      // 60 seconds in milliseconds
+
+const unsigned long displayUpdateInterval = 1000;  // 1 second
+
+const uint8_t maxSameColor = 3;  // X times in a row
 
 unsigned long randomSpawnRate = 0;  //stores next random spawn time
 
@@ -107,7 +114,6 @@ enum ButtonEvent {
 };
 
 unsigned long clockStartTime;
-const unsigned long clockDuration = 10000;      // 60 seconds in milliseconds
 unsigned long previousPrint = 0;
 const unsigned long printInterval = 100;        // print every 100 ms
 bool timerRunning = true;
@@ -124,7 +130,6 @@ uint16_t highScore;
 char highScoreName[5];
 
 unsigned long lastDisplayUpdate = 0;
-const unsigned long displayUpdateInterval = 1000;  // 1 second
 bool displayToggle = true;
 
 bool firstGame = true;
@@ -505,28 +510,39 @@ void Game() {
       bool correctDirection = (flashingLeds[i].color == colorA && isClockwise) || (flashingLeds[i].color == colorB && !isClockwise);
 
       if (correctDirection) {
-        startPlayback(hit, sizeof(hit));
-        if (combo < 16) {
-          combo = combo * 2;
+        if (!flashingLeds[i].beenPassed) {
+
+          startPlayback(hit, sizeof(hit));
+
+          if (combo < 16) {
+            combo = combo * 2;
+          }
+          score = score + (10 * combo);
+
+          for(int i = 0; i < MAX_FLASHING_LEDS; i++){
+            if(!flashingLeds[i].active) continue;
+            
+            flashingLeds[i].beenPassed = false;
+          }
+
+          flashingLeds[i].active = false;
+          strip.setPixelColor(flashingLeds[i].pixel, 0);  //turn off LED
+          flashingLeds[i].ledOn = false;
+
+          strip.show();
         }
-        score = score + (10 * combo);
       } else {
-        startPlayback(miss, sizeof(miss));
-        ResetCombo();
+        //startPlayback(miss, sizeof(miss));
+        //ResetCombo();
+        flashingLeds[i].beenPassed = true;
       }
-
-
-      flashingLeds[i].active = false;
-      strip.setPixelColor(flashingLeds[i].pixel, 0);  //turn off LED
-      flashingLeds[i].ledOn = false;
-
-      strip.show();
 
       sprintf(buf, "%04d", score);
       scoreDisplay.displayStr(buf);
     }
   }
 }
+
 
 int GetRandomPixel() {  //get a random pixel and make sure its not been used recently:
   uint8_t randomPixel;
@@ -540,6 +556,8 @@ int GetRandomPixel() {  //get a random pixel and make sure its not been used rec
     for (int i = 0; i < MAX_FLASHING_LEDS; i++) {
       //check if the pixel has been used
       if (flashingLeds[i].active && flashingLeds[i].pixel == randomPixel) {
+
+        if()
         isDuplicate = true;
         break;
       }
@@ -553,16 +571,34 @@ int GetRandomPixel() {  //get a random pixel and make sure its not been used rec
 }
 
 void startFlashingLED(int pixel) {
-  for (int i = 0; i < MAX_FLASHING_LEDS; i++) { //find an inactive LED slot
+  static uint32_t lastColor = 0;
+  static int sameColorCount = 0;
+  for (int i = 0; i < MAX_FLASHING_LEDS; i++) {  //find an inactive LED slot
     if (!flashingLeds[i].active) {
-      flashingLeds[i].active = true;  
-      flashingLeds[i].pixel = pixel;  
-      flashingLeds[i].startTime = millis();  //record the start time
+      flashingLeds[i].active = true;
+      flashingLeds[i].pixel = pixel;
+      flashingLeds[i].startTime = millis();       //record the start time
       flashingLeds[i].lastToggleTime = millis();  //record the toggle time
-      flashingLeds[i].delayTime = 500;  
-      flashingLeds[i].ledOn = false;  
-      flashingLeds[i].color = (random(2) == 0) ? colorA : colorB;  //randomly pick blue or red
-      return;  
+      flashingLeds[i].delayTime = 500;
+      flashingLeds[i].ledOn = false;
+      flashingLeds[i].beenPassed = false;
+
+      uint32_t newColor = (random(2) == 0) ? colorA : colorB;
+
+      if (newColor == lastColor) {
+        sameColorCount++;
+        if (sameColorCount >= maxSameColor) {
+          //force the other color
+          newColor = (lastColor == colorA) ? colorB : colorA;
+          sameColorCount = 0;  
+        }
+      } else {
+        sameColorCount = 1;  //reset count for new color
+      }
+
+      lastColor = newColor;
+      flashingLeds[i].color = newColor;
+      return;
     }
   }
   //no available slots
