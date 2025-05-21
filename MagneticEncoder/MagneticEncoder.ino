@@ -93,6 +93,8 @@ const uint8_t maxSameColor = 3;  // X times in a row
 
 unsigned long randomSpawnRate = 0;  //stores next random spawn time
 
+const uint8_t spawningDeadzone = 5;
+
 
 bool isClockwise;
 float lastAngle;
@@ -139,6 +141,8 @@ char alphabet[] = {
 };
 
 unsigned long lastBlinkUpdate = 0;
+
+int aimedAtLed;
 
 void setup()
 {
@@ -451,6 +455,10 @@ void StartGame() {
 
 void Game() {
   float angle = as5600.rawAngle() * AS5600_RAW_TO_DEGREES;
+
+  aimedAtLed = round((angle / 360.0) * 61) % 61;
+  aimedAtLed = (numPixels)-aimedAtLed;  // Reverse direction
+  aimedAtLed -= 1;
   //led:
 
   unsigned long currentMillis = millis();
@@ -490,9 +498,7 @@ void Game() {
   //Serial.println(as5600.rawAngle());
   //Serial.println(as5600.rawAngle() * AS5600_RAW_TO_DEGREES);
 
-  int aimedAtLed = round((angle / 360.0) * 61) % 61;
-  aimedAtLed = (numPixels)-aimedAtLed;  // Reverse direction
-  aimedAtLed -= 1;
+  
   //Serial.print("aimed at led: ");
   //Serial.println(aimedAtLed);
 
@@ -556,10 +562,15 @@ int GetRandomPixel() {  //get a random pixel and make sure its not been used rec
     for (int i = 0; i < MAX_FLASHING_LEDS; i++) {
       //check if the pixel has been used
       if (flashingLeds[i].active && flashingLeds[i].pixel == randomPixel) {
-
-        if()
         isDuplicate = true;
         break;
+      }
+
+      // Check proximity to aimedAtLed (with wraparound)
+      int dist = abs((int)randomPixel - (int)aimedAtLed);
+      int wrappedDist = min(dist, numPixels - dist);
+      if (wrappedDist <= spawningDeadzone) {
+        isDuplicate = true;
       }
     }
     attempts++;
