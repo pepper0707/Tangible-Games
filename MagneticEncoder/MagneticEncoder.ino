@@ -49,14 +49,17 @@ const uint16_t colorChangeInterval = 2000;
 const uint8_t blinkFrequency = 50;
 
 //pins:
-const uint8_t buttonPin = 7;  // the number of the pushbutton pin
-const uint8_t neoPixelPin = 12;  //control pin for the LED strip
+const uint8_t buttonPin = 6;  // the number of the pushbutton pin
+const uint8_t neoPixelPin = 10;  //control pin for the LED strip
 
 const uint8_t CLK1 = 2;   //keeping the pins for the display on non pwm pins seems to fix issues with charcters sometimes not display correctly. probs a timing issue.
 const uint8_t DIO1 = 8; 
 
 const uint8_t CLK2 = 4;
 const uint8_t DIO2 = 13;
+
+const uint8_t CLK3 = 12;
+const uint8_t DIO3 = 7;
 
 const uint8_t numPixels = 60;   //number of pixels in the strip
 
@@ -67,6 +70,7 @@ const uint32_t colorB = strip.Color(0, 255, 255);
 
 TM1637 scoreDisplay(CLK1, DIO1);
 TM1637 comboDisplay(CLK2, DIO2);
+TM1637 clockDisplay(CLK3, DIO3);
 
 const unsigned long debounceDelay = 50;               // the debounce time; increase if the output 
 
@@ -85,9 +89,9 @@ FlashingLED flashingLeds[MAX_FLASHING_LEDS];  //array for active LEDs
 
 const unsigned long clockwiseCheckInterval = 250;
 
-const unsigned long clockDuration = 60000;      // 60 seconds in milliseconds
+const unsigned long clockDuration = 10000;      // 60 seconds in milliseconds
 
-const unsigned long displayUpdateInterval = 1000;  // 1 second
+const unsigned long displayUpdateInterval = 1500;  // 1 second
 
 const uint8_t maxSameColor = 3;  // X times in a row
 
@@ -120,8 +124,6 @@ unsigned long previousPrint = 0;
 const unsigned long printInterval = 100;        // print every 100 ms
 bool timerRunning = true;
 
-char buf[3];
-int remaining;
 
 uint8_t chase_q = 0;
 unsigned long chasePreviousMillis = 0;
@@ -143,6 +145,9 @@ char alphabet[] = {
 unsigned long lastBlinkUpdate = 0;
 
 int aimedAtLed;
+
+char buf[5];
+
 
 void setup()
 {
@@ -198,8 +203,12 @@ void setup()
   comboDisplay.init();
   comboDisplay.set(BRIGHT_TYPICAL);//BRIGHT_TYPICAL = 2,BRIGHT_DARKEST = 0,BRIGHTEST = 7;
 
+  clockDisplay.init();
+  clockDisplay.set(BRIGHT_TYPICAL);//BRIGHT_TYPICAL = 2,BRIGHT_DARKEST = 0,BRIGHTEST = 7;
+
   scoreDisplay.displayStr((char *)"lets");
   comboDisplay.displayStr((char *)"play");
+  //clockDisplay.displayStr((char *)"hell");
   
   
   // initialize the pushbutton pin as an input:
@@ -236,11 +245,13 @@ void loop() {
     if (clockCurrentMillis - previousPrint >= printInterval) {    // Only print every 100 ms
       previousPrint = clockCurrentMillis;
 
-      remaining = (clockDuration - elapsed + 999) / 1000;
+      float remaining = (clockDuration - elapsed) / 1000.0;
       if (remaining < 0) remaining = 0;
 
-      sprintf(buf, "%02d%02d", combo, remaining);  
+
+      sprintf(buf, "%-4d", combo);  
       comboDisplay.displayStr(buf);
+      clockDisplay.displayNum(remaining,2);
 
       if (elapsed >= clockDuration) {                               // If time's up
         endGame();
@@ -321,7 +332,27 @@ void NameInput() {
   int pixel;
   bool blinkToggle = true;
 
+  bool displayToggle = true;
+
+  clockDisplay.displayNum(0);
   comboDisplay.clearDisplay();
+
+  for(int i = 0; i<10; i++){
+    if(displayToggle){
+      comboDisplay.displayStr((char *)"HiSc");
+      scoreDisplay.displayStr((char *)"HiSc");
+      clockDisplay.displayStr((char *)"HiSc");
+    }else{
+      comboDisplay.displayStr((char *)"    ");
+      scoreDisplay.displayStr((char *)"    ");
+      clockDisplay.displayStr((char *)"    ");
+    }
+    displayToggle = !displayToggle;
+    delay(300);
+  }
+
+  scoreDisplay.displayStr((char *)"entr");
+  clockDisplay.displayStr((char *)"plyr");
 
   while (lettersEntered < 4) {
     float angle = as5600.rawAngle() * AS5600_RAW_TO_DEGREES;
@@ -396,21 +427,26 @@ void displayIdle(){
     lastDisplayUpdate = currentMillis;
     scoreDisplay.clearDisplay();
     comboDisplay.clearDisplay();
+    clockDisplay.clearDisplay();
 
     if(displayToggle){
       if(firstGame){
         scoreDisplay.displayStr((char *)"lets");
         comboDisplay.displayStr((char *)"play");
+        clockDisplay.displayStr((char *)"    ");
       }else{
         scoreDisplay.displayStr((char *)"PrSc");
         comboDisplay.displayNum(score);
+        clockDisplay.displayStr((char *)"    ");
       }
     }else{
       scoreDisplay.displayStr((char *)"HiSc");
       if(highScore <= 0){
         comboDisplay.displayStr((char *)"0000");
+        clockDisplay.displayStr((char *)"----");
       }else{
         comboDisplay.displayNum(highScore);
+        clockDisplay.displayStr(highScoreName);
       }
     }
 
@@ -427,12 +463,14 @@ void StartGame() {
 
   scoreDisplay.clearDisplay();
   comboDisplay.clearDisplay();
+  clockDisplay.clearDisplay();
 
   for (int i = 3; i >= 1; i--) {
     useAltColor = !useAltColor;
     startPlayback(secondCount, sizeof(secondCount));
     scoreDisplay.displayNum(i);
     comboDisplay.displayNum(i);
+    clockDisplay.displayNum(i);
     for (int i = 0; i < numPixels; i++) {
         strip.setPixelColor(i, useAltColor ? colorA : colorB);
       }
@@ -446,6 +484,7 @@ void StartGame() {
   startPlayback(goCount, sizeof(goCount));
   scoreDisplay.displayStr((char *)"G0");
   comboDisplay.displayStr((char *)"G0");
+  clockDisplay.displayStr((char *)"G0");
   delay(1500);
   scoreDisplay.displayStr((char *)"0000");
   gameStarted = true;
