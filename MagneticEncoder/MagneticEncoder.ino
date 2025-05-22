@@ -92,7 +92,7 @@ struct FlashingLED {
 
 FlashingLED flashingLeds[MAX_FLASHING_LEDS];  //array for active LEDs
 
-const unsigned long clockwiseCheckInterval = 250;
+const unsigned long clockwiseCheckInterval = 100;
 
 const unsigned long clockDuration = 60000;      // 60 seconds in milliseconds
 
@@ -136,7 +136,7 @@ unsigned long chasePreviousMillis = 0;
 bool useAltColor;
 
 uint16_t highScore;
-char highScoreName[5];
+char highScoreName[4];
 
 unsigned long lastDisplayUpdate = 0;
 bool displayToggle = true;
@@ -216,7 +216,6 @@ void setup()
 
   scoreDisplay.displayStr((char *)"lets");
   comboDisplay.displayStr((char *)"play");
-  //clockDisplay.displayStr((char *)"hell");
   
   
   // initialize the pushbutton pin as an input:
@@ -335,7 +334,7 @@ void endGame() {
 
 void NameInput() {
 
-  char name[5] = { '\0' };  //room for 4 letters + null terminator
+  char name[4] = { '\0' };  //room for 4 letters + null terminator
   int lettersEntered = 0;
   int pixel;
   bool blinkToggle = true;
@@ -375,7 +374,7 @@ void NameInput() {
     strip.setPixelColor(pixel + 1, 0);
 
 
-    char displayBuffer[5];
+    char displayBuffer[4];
     strcpy(displayBuffer, name);  // Copy what’s locked-in
 
 
@@ -410,6 +409,7 @@ void NameInput() {
         name[lettersEntered] = currentLetter;  //temporarily add the currently selected letter at the current position
         lettersEntered++;
         name[lettersEntered] = '\0';  //make sure null-terminator is in place (after the last real letter)
+        //startPlayback(secondCount, sizeof(secondCount));
         break;
 
       case BUTTON_HOLD:
@@ -582,8 +582,8 @@ void Game() {
   // Serial.println(lastAngle);
   //Serial.print("current angle: ");
   //Serial.println(as5600.rawAngle() * AS5600_RAW_TO_DEGREES);
-  //Serial.print("Clockwise: ");
-  //Serial.println(isClockwise);
+  Serial.print("Clockwise: ");
+  Serial.println(isClockwise);
   updateFlashingLEDs();  //update all flashing LEDs
 
   static unsigned long lastTrigger = 0;
@@ -688,6 +688,8 @@ void TurnOffLed(int index){
   strip.setPixelColor(flashingLeds[index].pixel, 0);  //turn off LED
   flashingLeds[index].ledOn = false;
   flashingLeds[index].hasLeftPixel = false;
+  flashingLeds[index].beenPassed = false;
+  flashingLeds[index].passedClockwise = false;
 
   strip.show();
 }
@@ -795,6 +797,7 @@ void updateFlashingLEDs() {
     
       continue;
     }
+    
 
     if (currentTime - led.lastToggleTime >= led.delayTime) {      //check if its time to toggle
       led.lastToggleTime = currentTime;                           //update the last toggle time
