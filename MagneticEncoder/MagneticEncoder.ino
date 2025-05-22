@@ -41,7 +41,7 @@ uint8_t lastButtonState = LOW;    // the previous reading from the input pin
 #define LED_SPAWN_MIN 1000  //min spawn delay 
 #define LED_SPAWN_MAX 3000  //max spawn delay 
 
-const uint8_t colorCRarity = 5;  //% chance for colorC
+const uint8_t colorCRarityDefault = 10;  //% chance for colorC
 
 const unsigned long normalLifespan = 4000;
 const unsigned long specialLifespan = 10000;
@@ -154,6 +154,8 @@ int aimedAtLed;
 char buf[5];
 
 int colorC_Pixel;
+
+uint8_t colorCRarity;
 
 void setup()
 {
@@ -501,25 +503,52 @@ void StartGame() {
 
 void DifficultySelect() {
   bool selecting = true;
+  strip.clear();
+  strip.show();
+
+  scoreDisplay.displayStr((char *)"diff");
+  comboDisplay.displayStr((char *)"    ");
+  clockDisplay.displayStr((char *)"    ");
+
   while (selecting) {
-    strip.clear();
-    strip.show();
     float angle = as5600.rawAngle() * AS5600_RAW_TO_DEGREES;
     aimedAtLed = round((angle / 360.0) * 61) % 61;
     aimedAtLed = (numPixels)-aimedAtLed;  // Reverse direction
     aimedAtLed -= 1;
 
-    int start = (aimedAtLed < numPixels / 2) ? 0 : numPixels / 2;
-    int end = (aimedAtLed < numPixels / 2) ? numPixels : numPixels;
-
-    for (int i = start; i < end; i++) {
-      strip.setPixelColor(i, colorA);
+    // First, clear all LEDs
+    for (int i = 0; i < numPixels; i++) {
+      strip.setPixelColor(i, 0);  // Set all to off
     }
     
+    bool selectedHalf = (aimedAtLed < numPixels / 2);
+
+    uint8_t start;
+    uint8_t end;
+    uint32_t color;
+
+    if(!selectedHalf){
+      start = numPixels / 2;
+      end = numPixels;
+      color = colorA;
+      clockDisplay.displayStr((char *)"   1");
+    }else{
+      start = 0;
+      end = numPixels / 2;
+      color = colorC;
+      clockDisplay.displayStr((char *)"   2");
+    }
+
+    for (int i = start; i < end; i++) {
+      strip.setPixelColor(i, color);
+    }
+
     strip.show();
     switch (GetButtonState(3000)) {
       case BUTTON_PRESS:
         selecting = false;
+        colorCRarity = selectedHalf ? colorCRarityDefault : 0;
+        useAltColor = true;
         break;
       case BUTTON_HOLD:
         break;
