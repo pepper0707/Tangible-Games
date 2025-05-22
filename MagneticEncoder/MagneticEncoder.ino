@@ -41,7 +41,7 @@ uint8_t lastButtonState = LOW;    // the previous reading from the input pin
 #define LED_SPAWN_MIN 1000  //min spawn delay 
 #define LED_SPAWN_MAX 3000  //max spawn delay 
 
-const uint8_t colorCRarityDefault = 10;  //% chance for colorC
+const uint8_t colorCRarityDefault = 5;  //% chance for colorC
 
 const unsigned long normalLifespan = 4000;
 const unsigned long specialLifespan = 10000;
@@ -88,11 +88,12 @@ struct FlashingLED {
   bool beenPassed; //if the led has been passed but not collected           
   bool passedClockwise;
   bool hasLeftPixel;
+  unsigned long passedTime;
 };
 
 FlashingLED flashingLeds[MAX_FLASHING_LEDS];  //array for active LEDs
 
-const unsigned long clockwiseCheckInterval = 100;
+const unsigned long clockwiseCheckInterval = 300;
 
 const unsigned long clockDuration = 60000;      // 60 seconds in milliseconds
 
@@ -103,6 +104,8 @@ const uint8_t maxSameColor = 3;  // X times in a row
 unsigned long randomSpawnRate = 0;  //stores next random spawn time
 
 const uint8_t spawningDeadzone = 5;
+
+const unsigned long incorrectResetTime = 500;
 
 
 bool isClockwise;
@@ -582,8 +585,8 @@ void Game() {
   // Serial.println(lastAngle);
   //Serial.print("current angle: ");
   //Serial.println(as5600.rawAngle() * AS5600_RAW_TO_DEGREES);
-  Serial.print("Clockwise: ");
-  Serial.println(isClockwise);
+  //Serial.print("Clockwise: ");
+  //Serial.println(isClockwise);
   updateFlashingLEDs();  //update all flashing LEDs
 
   static unsigned long lastTrigger = 0;
@@ -603,21 +606,28 @@ void Game() {
   //Serial.println(as5600.rawAngle());
   //Serial.println(as5600.rawAngle() * AS5600_RAW_TO_DEGREES);
 
+
+
+
   
-  //Serial.print("aimed at led: ");
-  //Serial.println(aimedAtLed);
+  Serial.print("aimed at led: ");
+  Serial.println(aimedAtLed);
 
   for (int i = 0; i < MAX_FLASHING_LEDS; i++) {
     if (!flashingLeds[i].active) continue;  //skip inactive LEDs
 
 
+
     int delta = abs((flashingLeds[i].pixel - aimedAtLed + numPixels) % numPixels);
+    if(flashingLeds[i].pixel == 0 && aimedAtLed == 0){    //this is stupid and just avoiding an issue of index not matching when at start of strip 
+      delta = 0;
+    }
     if (delta<=1) {
 
-      //Serial.print("aimed at led: ");
-      //Serial.println(aimedAtLed);
-      //Serial.print("led pixel: ");
-      //Serial.println(flashingLeds[i].pixel);
+      // Serial.print("aimed at led: ");
+      // Serial.println(aimedAtLed);
+      Serial.print("led pixel: ");
+      Serial.println(flashingLeds[i].pixel);
       //Serial.println("HIT!!!!!!!!!!!!!!!!");
 
       if (flashingLeds[i].color == colorC) {
@@ -633,6 +643,7 @@ void Game() {
           // Second pass logic - only if we've left the pixel since the first pass
           if (flashingLeds[i].passedClockwise == isClockwise) {
             CollectLed(i, 30);
+            startPlayback(goCount, sizeof(goCount));
           } else {
             TurnOffLed(i);
             startPlayback(miss, sizeof(miss));
@@ -641,16 +652,25 @@ void Game() {
         continue;
       }
 
+      unsigned long currentTime = millis();
+      if (currentTime - flashingLeds[i].passedTime >= incorrectResetTime) {
+        flashingLeds[i].beenPassed = false;
+        // Serial.println("beenPassed set to false");
+      }
+
       bool correctDirection = (flashingLeds[i].color == colorA && isClockwise) || (flashingLeds[i].color == colorB && !isClockwise);
 
       if (correctDirection) {
         if (!flashingLeds[i].beenPassed) {
           CollectLed(i, 10);
+          startPlayback(hit, sizeof(hit));
         }
       } else {
         //startPlayback(miss, sizeof(miss));
         //ResetCombo();
+        //Serial.println("been passed = true");
         flashingLeds[i].beenPassed = true;
+        flashingLeds[i].passedTime = millis();
       }
     }else{
       // This is the case when delta > 1 (not aiming at this LED)
@@ -678,7 +698,6 @@ void CollectLed(int index, int baseScore) {
   sprintf(buf, "%04d", score);
   scoreDisplay.displayStr(buf);
 
-  startPlayback(hit, sizeof(hit));
 
   TurnOffLed(index);
 }
@@ -786,6 +805,7 @@ void updateFlashingLEDs() {
     FlashingLED &led = flashingLeds[i];       
 
     unsigned long lifeSpan = (led.color == colorC) ? specialLifespan : normalLifespan;
+
 
     if (currentTime - led.startTime >= lifeSpan) {                  //check if LED lifespan is up
       strip.setPixelColor(led.pixel, 0);                                //turn off LED
