@@ -60,11 +60,13 @@ const uint8_t numPixels = 60;      // Number of pixels in the strip
 #define LED_SPAWN_MIN 1000        // Min spawn delay in ms
 #define LED_SPAWN_MAX 3000        // Max spawn delay in ms
 const unsigned long normalLifespan = 4000;   // Regular LED lifespan
-const unsigned long specialLifespan = 10000; // Special LED lifespan
-const uint8_t colorCRarityDefault = 5;       // % chance for special colorC
+const unsigned long specialLifespan = 6000; // Special LED lifespan
+const uint8_t colorCRarityDefault = 10;       // % chance for special colorC
 const uint8_t maxSameColor = 3;              // Max times same color can appear in a row
 const uint8_t aimedLedDeadzone = 3;          // Deadzone around aimed position. This applies either side, so total deadzone area is 2x this
 const uint8_t existingLedsDeadzone = 2;      // Minimum spacing between LEDs. This applies either side, so total deadzone area is 2x this
+const uint8_t commonScoring = 5;            // Base points when collecting a common led (colorA or colorB)
+const uint8_t specialScoring = 15;           // Base points when collecting a special led (colorC)
 
 // Timing Paramaters
 const unsigned long clockwiseCheckInterval = 300;  // Rotation direction check interval
@@ -651,7 +653,7 @@ void Game() {
         if (flashingLeds[i].hasLeftPixel) {
           // Second pass logic - only if we've left the pixel since the first pass
           if (flashingLeds[i].passedClockwise == isClockwise) {
-            CollectLed(i, 30);
+            CollectLed(i, specialScoring);
             startPlayback(goCount, sizeof(goCount));
           } else {
             TurnOffLed(i);
@@ -671,7 +673,7 @@ void Game() {
 
       if (correctDirection) {
         if (!flashingLeds[i].beenPassed) {
-          CollectLed(i, 10);
+          CollectLed(i, commonScoring);
           startPlayback(hit, sizeof(hit));
           //Serial.println("Succesful collection");
         }else{
@@ -694,7 +696,7 @@ void Game() {
   }
 }
 
-void CollectLed(int index, int baseScore) {
+void CollectLed(int index, uint8_t baseScore) {
   for (int i = 0; i < MAX_FLASHING_LEDS; i++) {
     if (!flashingLeds[i].active) continue;
 
@@ -799,7 +801,6 @@ bool CheckForInbetweenSpawn(int randomPixel){
       int distance = 0;
 
       if (isClockwise) {
-        // Left of marker (decreasing index, wrapping)
         distance = (aimedAtLed - ledPos + numPixels) % numPixels;
         if (distance > 0 && distance < minDistance) {
           minDistance = distance;
@@ -808,7 +809,6 @@ bool CheckForInbetweenSpawn(int randomPixel){
           //Serial.println(nearestLed);
         }
       } else {
-        // Right of marker (increasing index, wrapping)
         distance = (ledPos - aimedAtLed + numPixels) % numPixels;
         if (distance > 0 && distance < minDistance) {
           minDistance = distance;
@@ -819,7 +819,7 @@ bool CheckForInbetweenSpawn(int randomPixel){
       }
   }
 
-  // Get all LEDs between marker and nearest LED (exclusive)
+  // Get all LEDs between marker and nearest LED 
   bool found = false;
   if (nearestLed != -1) {
     int pos = aimedAtLed;
@@ -838,10 +838,8 @@ bool CheckForInbetweenSpawn(int randomPixel){
 
 uint32_t DetermineColor(bool foundInbetween) {
   uint8_t randVal = random(100);  // 0–99
-  uint8_t thresholdC = 100 - colorCRarity;
-  uint8_t thresholdB = thresholdC / 2;
 
-  if (randVal > thresholdC) {
+  if (randVal < colorCRarity) {
     return colorC;
   }
 
@@ -849,11 +847,7 @@ uint32_t DetermineColor(bool foundInbetween) {
     return isClockwise ? colorB : colorA;
   }
 
-  if(randVal > thresholdB){
-    return colorA;
-  }else{
-    return colorB;
-  }
+  return (random(2) == 0) ? colorA : colorB;
 }
 
 void updateFlashingLEDs() {
