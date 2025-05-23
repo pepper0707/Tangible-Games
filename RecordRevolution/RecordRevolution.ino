@@ -105,7 +105,7 @@ unsigned long randomSpawnRate = 0;  //stores next random spawn time
 
 const uint8_t spawningDeadzone = 5;
 
-const unsigned long incorrectResetTime = 500;
+const unsigned long incorrectResetTime = 750;
 
 
 bool isClockwise;
@@ -577,7 +577,6 @@ void Game() {
     lastAngle = angle;
   }
 
-
   float angleDelta = angle - lastAngle;
 
   if (angleDelta > 180.0) {
@@ -588,6 +587,7 @@ void Game() {
 
   isClockwise = angleDelta > 0;
   isClockwise = !isClockwise;
+
   // Serial.print("last Angle: ");
   // Serial.println(lastAngle);
   //Serial.print("current angle: ");
@@ -671,9 +671,9 @@ void Game() {
         if (!flashingLeds[i].beenPassed) {
           CollectLed(i, 10);
           startPlayback(hit, sizeof(hit));
-          Serial.println("Succesful collection");
+          //Serial.println("Succesful collection");
         }else{
-          Serial.println("Been passed cant collect");
+          //Serial.println("Been passed cant collect");
         }
       } else {
         //startPlayback(miss, sizeof(miss));
@@ -681,13 +681,6 @@ void Game() {
         //Serial.println("been passed = true");
         flashingLeds[i].beenPassed = true;
         flashingLeds[i].passedTime = millis();
-
-        Serial.println("Incorrect Direction");
-        Serial.println("led color =");
-        Serial.print(flashingLeds[i].color);
-        Serial.println("Is clockwise = ");
-        Serial.print(isClockwise);
-        //delay(10000);
       }
     }else{
       // This is the case when delta > 1 (not aiming at this LED)
