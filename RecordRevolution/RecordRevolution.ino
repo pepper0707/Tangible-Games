@@ -578,17 +578,22 @@ void Game() {
   }
 
 
-  if (angle < lastAngle) {
-    isClockwise = true;
-  } else if (angle > lastAngle) {
-    isClockwise = false;
+  float angleDelta = angle - lastAngle;
+
+  if (angleDelta > 180.0) {
+    angleDelta -= 360.0;
+  } else if (angleDelta < -180.0) {
+    angleDelta += 360.0;
   }
+
+  isClockwise = angleDelta > 0;
+  isClockwise = !isClockwise;
   // Serial.print("last Angle: ");
   // Serial.println(lastAngle);
   //Serial.print("current angle: ");
   //Serial.println(as5600.rawAngle() * AS5600_RAW_TO_DEGREES);
-  //Serial.print("Clockwise: ");
-  //Serial.println(isClockwise);
+  Serial.print("Clockwise: ");
+  Serial.println(isClockwise);
   updateFlashingLEDs();  //update all flashing LEDs
 
   static unsigned long lastTrigger = 0;
@@ -612,8 +617,8 @@ void Game() {
 
 
   
-  Serial.print("aimed at led: ");
-  Serial.println(aimedAtLed);
+  //Serial.print("aimed at led: ");
+  //Serial.println(aimedAtLed);
 
   for (int i = 0; i < MAX_FLASHING_LEDS; i++) {
     if (!flashingLeds[i].active) continue;  //skip inactive LEDs
@@ -628,8 +633,8 @@ void Game() {
 
       // Serial.print("aimed at led: ");
       // Serial.println(aimedAtLed);
-      Serial.print("led pixel: ");
-      Serial.println(flashingLeds[i].pixel);
+      //Serial.print("led pixel: ");
+      //Serial.println(flashingLeds[i].pixel);
       //Serial.println("HIT!!!!!!!!!!!!!!!!");
 
       if (flashingLeds[i].color == colorC) {
@@ -666,6 +671,9 @@ void Game() {
         if (!flashingLeds[i].beenPassed) {
           CollectLed(i, 10);
           startPlayback(hit, sizeof(hit));
+          Serial.println("Succesful collection");
+        }else{
+          Serial.println("Been passed cant collect");
         }
       } else {
         //startPlayback(miss, sizeof(miss));
@@ -673,6 +681,13 @@ void Game() {
         //Serial.println("been passed = true");
         flashingLeds[i].beenPassed = true;
         flashingLeds[i].passedTime = millis();
+
+        Serial.println("Incorrect Direction");
+        Serial.println("led color =");
+        Serial.print(flashingLeds[i].color);
+        Serial.println("Is clockwise = ");
+        Serial.print(isClockwise);
+        //delay(10000);
       }
     }else{
       // This is the case when delta > 1 (not aiming at this LED)
