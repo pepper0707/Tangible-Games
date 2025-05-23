@@ -594,8 +594,8 @@ void Game() {
   // Serial.println(lastAngle);
   //Serial.print("current angle: ");
   //Serial.println(as5600.rawAngle() * AS5600_RAW_TO_DEGREES);
-  Serial.print("Clockwise: ");
-  Serial.println(isClockwise);
+  //Serial.print("Clockwise: ");
+  //Serial.println(isClockwise);
   updateFlashingLEDs();  //update all flashing LEDs
 
   static unsigned long lastTrigger = 0;
@@ -804,8 +804,8 @@ bool CheckForInbetweenSpawn(int randomPixel){
         if (distance > 0 && distance < minDistance) {
           minDistance = distance;
           nearestLed = ledPos;
-          Serial.println("Nearest led: ");
-          Serial.print(nearestLed);
+          //Serial.print("Nearest led: ");
+          //Serial.println(nearestLed);
         }
       } else {
         // Right of marker (increasing index, wrapping)
@@ -813,8 +813,8 @@ bool CheckForInbetweenSpawn(int randomPixel){
         if (distance > 0 && distance < minDistance) {
           minDistance = distance;
           nearestLed = ledPos;
-          Serial.println("Nearest led: ");
-          Serial.print(nearestLed);
+          //Serial.print("Nearest led: ");
+          //Serial.println(nearestLed);
         }
       }
   }
