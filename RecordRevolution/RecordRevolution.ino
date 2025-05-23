@@ -103,7 +103,8 @@ const uint8_t maxSameColor = 3;  // X times in a row
 
 unsigned long randomSpawnRate = 0;  //stores next random spawn time
 
-const uint8_t spawningDeadzone = 5;
+const uint8_t aimedLedDeadzone = 3; //this applies either side, so total deadzone area is 2x this
+const uint8_t existingLedsDeadzone = 2; //this applies either side, so total deadzone area is 2x this
 
 const unsigned long incorrectResetTime = 750;
 
@@ -725,30 +726,37 @@ void TurnOffLed(int index){
 
 int GetRandomPixel() {  //get a random pixel and make sure its not been used recently:
   uint8_t randomPixel;
-  bool isDuplicate;
+  bool isTooClose;
   uint8_t attempts = 0;
 
   do {
     randomPixel = random(0, numPixels);  //generate a random pixel
-    isDuplicate = false;
+    isTooClose = false;
 
-    for (int i = 0; i < MAX_FLASHING_LEDS; i++) {
-      //check if the pixel has been used
-      if (flashingLeds[i].active && flashingLeds[i].pixel == randomPixel) {
-        isDuplicate = true;
+      // Check proximity to aimedAtLed (with wraparound)
+      int distToAimed = abs((int)randomPixel - (int)aimedAtLed);
+      int wrappedDistToActive = min(distToAimed, numPixels - distToAimed);
+      if (wrappedDistToActive <= aimedLedDeadzone) {
+        isTooClose = true;
+      }
+
+    // Check distance from all active flashing LEDs
+    for (int i = 0; i < MAX_FLASHING_LEDS && !isTooClose; i++) {
+      if (!flashingLeds[i].active) continue;
+
+      int distToActive = abs((int)randomPixel - (int)flashingLeds[i].pixel);
+      int wrappedDistToActive = min(distToActive, numPixels - distToActive);
+
+      if (wrappedDistToActive <= existingLedsDeadzone) {
+        isTooClose = true;
         break;
       }
 
-      // Check proximity to aimedAtLed (with wraparound)
-      int dist = abs((int)randomPixel - (int)aimedAtLed);
-      int wrappedDist = min(dist, numPixels - dist);
-      if (wrappedDist <= spawningDeadzone) {
-        isDuplicate = true;
-      }
+
     }
     attempts++;
     if (attempts > 10) break;  // prevent infinite loops if LEDs are full
-  } while (isDuplicate);       //loop until randomPixel is a pixel not in the used array
+  } while (isTooClose);       //loop until randomPixel is a pixel not in the used array
 
 
   return randomPixel;
