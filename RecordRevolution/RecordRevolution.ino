@@ -567,6 +567,8 @@ void Game() {
   aimedAtLed = round((angle / 360.0) * 61) % 61;
   aimedAtLed = (numPixels)-aimedAtLed;  // Reverse direction
   aimedAtLed -= 1;
+
+  aimedAtLed = (aimedAtLed + numPixels) % numPixels; // might fix index issues
   //led:
 
   unsigned long currentMillis = millis();
@@ -618,10 +620,10 @@ void Game() {
 
 
 
-    int delta = abs((flashingLeds[i].pixel - aimedAtLed + numPixels) % numPixels);
-    if(flashingLeds[i].pixel == 0 && aimedAtLed == 0){    //this is stupid and just avoiding an issue of index not matching when at start of strip 
-      delta = 0;
-    }
+    int forward = (flashingLeds[i].pixel - aimedAtLed + numPixels) % numPixels;
+    int backward = (aimedAtLed - flashingLeds[i].pixel + numPixels) % numPixels;
+    int delta = min(forward, backward);
+
     if (delta<=1) {
 
       // Serial.print("aimed at led: ");
