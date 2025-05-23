@@ -68,7 +68,7 @@ const uint8_t existingLedsDeadzone = 2;      // Minimum spacing between LEDs. Th
 
 // Timing Paramaters
 const unsigned long clockwiseCheckInterval = 300;  // Rotation direction check interval
-const unsigned long clockDuration = 10000;    // Game duration (60 seconds)
+const unsigned long clockDuration = 60000;    // Game duration (60 seconds)
 const unsigned long incorrectResetTime = 750;  // Time before resetting "passed" state. Fall back from resetting on led collection
 const unsigned long debounceDelay = 50;        // Button debounce time
 
@@ -781,39 +781,79 @@ void startFlashingLED(int pixel) {
       flashingLeds[i].passedClockwise = false;
       flashingLeds[i].hasLeftPixel = false;
 
-      uint8_t randVal = random(100);  // 0–99
-
-      uint8_t thresholdC = 100 - colorCRarity;
-      uint8_t thresholdB = thresholdC / 2;
-
-      uint32_t newColor;
-
-      if (randVal < thresholdB) {
-        newColor = colorA;
-      } else if (randVal < thresholdC) {
-        newColor = colorB;
-      } else {
-        newColor = colorC;
-      }
-
-      // Limit consecutive repeats for common colors only
-      if (newColor == lastColor && (newColor == colorA || newColor == colorB)) {
-        sameColorCount++;
-        if (sameColorCount >= maxSameColor) {
-          // Force switch to the other common color (not C)
-          newColor = (lastColor == colorA) ? colorB : colorA;
-          sameColorCount = 0;
-        }
-      } else {
-        sameColorCount = 1;
-      }
-
-      lastColor = newColor;
-      flashingLeds[i].color = newColor;
+      flashingLeds[i].color = DetermineColor(CheckForInbetweenSpawn(pixel));
       return;
     }
   }
   //no available slots
+}
+
+bool CheckForInbetweenSpawn(int randomPixel){
+  int nearestLed = -1;
+  int minDistance = numPixels;
+
+    // Find the nearest active LED in the specified direction
+  for (int i = 0; i < MAX_FLASHING_LEDS; i++) {
+      if (!flashingLeds[i].active) continue;
+      int ledPos = flashingLeds[i].pixel;
+      int distance = 0;
+
+      if (isClockwise) {
+        // Left of marker (decreasing index, wrapping)
+        distance = (aimedAtLed - ledPos + numPixels) % numPixels;
+        if (distance > 0 && distance < minDistance) {
+          minDistance = distance;
+          nearestLed = ledPos;
+          Serial.println("Nearest led: ");
+          Serial.print(nearestLed);
+        }
+      } else {
+        // Right of marker (increasing index, wrapping)
+        distance = (ledPos - aimedAtLed + numPixels) % numPixels;
+        if (distance > 0 && distance < minDistance) {
+          minDistance = distance;
+          nearestLed = ledPos;
+          Serial.println("Nearest led: ");
+          Serial.print(nearestLed);
+        }
+      }
+  }
+
+  // Get all LEDs between marker and nearest LED (exclusive)
+  bool found = false;
+  if (nearestLed != -1) {
+    int pos = aimedAtLed;
+    while (true) {
+      // Move in the correct direction
+      pos = isClockwise ? (pos + 1) % numPixels : (pos - 1 + numPixels) % numPixels;
+      if (pos == nearestLed) break;
+      if (pos == randomPixel) {
+        found = true;
+        break;
+      }
+    }
+  }
+  return found;
+}
+
+uint32_t DetermineColor(bool foundInbetween) {
+  uint8_t randVal = random(100);  // 0–99
+  uint8_t thresholdC = 100 - colorCRarity;
+  uint8_t thresholdB = thresholdC / 2;
+
+  if (randVal > thresholdC) {
+    return colorC;
+  }
+
+  if(foundInbetween){
+    return isClockwise ? colorB : colorA;
+  }
+
+  if(randVal > thresholdB){
+    return colorA;
+  }else{
+    return colorB;
+  }
 }
 
 void updateFlashingLEDs() {
