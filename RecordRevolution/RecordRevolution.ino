@@ -74,6 +74,11 @@ const unsigned long clockDuration = 60000;    // Game duration (60 seconds)
 const unsigned long incorrectResetTime = 750;  // Time before resetting "passed" state. Fall back from resetting on led collection
 const unsigned long debounceDelay = 50;        // Button debounce time
 
+// Blinking Rate
+const float initialBlinkProportion = 0.125f; // 12.5% of lifespan
+const float blinkAcceleration = 0.72f;
+const int minBlinkDelay = 30;
+
 // Animation parameters
 const uint16_t colorChangeInterval = 2000;    // Time between color changes in idle mode
 const uint8_t blinkFrequency = 50;           // LED blink rate
@@ -160,6 +165,7 @@ enum ButtonEvent {  // Button event types
   BUTTON_PRESS,     // Short press
   BUTTON_HOLD       // Long press/hold
 };
+
 
 
 void setup()
@@ -777,13 +783,13 @@ void startFlashingLED(int pixel) {
       flashingLeds[i].pixel = pixel;
       flashingLeds[i].startTime = millis();       //record the start time
       flashingLeds[i].lastToggleTime = millis();  //record the toggle time
-      flashingLeds[i].delayTime = 500;
       flashingLeds[i].ledOn = false;
       flashingLeds[i].beenPassed = false;
       flashingLeds[i].passedClockwise = false;
       flashingLeds[i].hasLeftPixel = false;
 
       flashingLeds[i].color = DetermineColor(CheckForInbetweenSpawn(pixel));
+      flashingLeds[i].delayTime = (flashingLeds[i].color == colorC) ? specialLifespan : normalLifespan * initialBlinkProportion;
       return;
     }
   }
@@ -881,7 +887,7 @@ void updateFlashingLEDs() {
         strip.setPixelColor(led.pixel, led.color);                //LED on
       } else {
         strip.setPixelColor(led.pixel, 0);                        //LED off
-        led.delayTime = max(30, led.delayTime * 0.7);             //decrease the delay to flash faster and faster
+        led.delayTime = max(minBlinkDelay, led.delayTime * blinkAcceleration);             //decrease the delay to flash faster and faster
       }
       strip.show(); 
     }
