@@ -41,7 +41,7 @@ const int addrFlag = 100;         // EEPROM address for initialization flag
 const uint8_t initFlag = 123;     // Unique value to mark EEPROM initialization
 
 // ===== Hardware Pins =====
-//Keeping the pins for the display on non pwm pins seems to fix issues with charcters sometimes not displaying correctly. Most likely some sort of timing issue.
+// Keeping the pins for the display on non pwm pins seems to fix issues with charcters sometimes not displaying correctly. Most likely some sort of timing issue.
 const uint8_t CLK1 = 2;
 const uint8_t DIO1 = 8; 
 const uint8_t CLK2 = 4;
@@ -133,7 +133,7 @@ TM1637 clockDisplay(CLK3, DIO3);
 // ===== NeoPixel Colors =====
 const uint32_t colorA = strip.Color(255, 0, 255); // Pink
 const uint32_t colorB = strip.Color(0, 255, 255); // Cyan
-const uint32_t colorC = strip.Color(57, 255, 20); //Green
+const uint32_t colorC = strip.Color(57, 255, 20); // Green
 
 // Structure for a flashing LED
 struct FlashingLED {
@@ -194,15 +194,14 @@ void setup()
   EEPROM.get(addrName, highScoreName);
   if (highScore > 9999) highScore = 9999;
   //led:
-  randomSeed(analogRead(0));          //gets random seed using random data from empty analog pin
+  randomSeed(analogRead(0));          // Gets random seed using random data from empty analog pin
   
-  randomSpawnRate = 1000;             //first LED spawns after 1 second
+  randomSpawnRate = 1000;             // First LED spawns after 1 second
   
-  strip.begin();                    //initialize the LED strip
-  strip.clear();                   //turn off all LEDs
-  strip.show();                   //update the strip
+  strip.begin();                    // Initialize the LED strip
+  strip.clear();                   // Turn off all LEDs
+  strip.show();                   // Update the strip
 
-  //magnetic
   Serial.println(__FILE__);
   Serial.print("AS5600_LIB_VERSION: ");
   Serial.println(AS5600_LIB_VERSION);
@@ -210,7 +209,7 @@ void setup()
 
   Wire.begin();
 
-  as5600.begin(13);  //  set direction pin.
+  //as5600.begin(13);  //  set direction pin.
   as5600.setDirection(AS5600_CLOCK_WISE);  //  default, just be explicit.
   int b = as5600.isConnected();
   Serial.print("Connect: ");
@@ -229,7 +228,7 @@ void setup()
   comboDisplay.displayStr((char *)"play");
   
   
-  // initialize the pushbutton pin as an input:
+  // Initialize the pushbutton pin as an input:
   pinMode(buttonPin, INPUT_PULLUP);
 
   buttonState = digitalRead(buttonPin);
@@ -256,11 +255,11 @@ void loop() {
     }
   }
 
-  if (gameStarted) {                                              // If game has started, you can run ongoing game logic
+  if (gameStarted) {                                              // If game has started, run game logic
     unsigned long clockCurrentMillis = millis();
     unsigned long elapsed = clockCurrentMillis - clockStartTime;
 
-    if (clockCurrentMillis - previousPrint >= printInterval) {    // Only print every 100 ms
+    if (clockCurrentMillis - previousPrint >= printInterval) {    // Only print every printInterval ms
       previousPrint = clockCurrentMillis;
 
       float remaining = (clockDuration - elapsed) / 1000.0;
@@ -345,7 +344,7 @@ void endGame() {
 
 void NameInput() {
 
-  char name[5] = { '\0' };  //room for 4 letters + null terminator
+  char name[5] = { '\0' };  // Room for 4 letters + null terminator
   int lettersEntered = 0;
   int pixel;
   bool blinkToggle = true;
@@ -419,13 +418,13 @@ void NameInput() {
     switch (GetButtonState(1000)) {
       case BUTTON_PRESS:
         //lock in the current letter
-        name[lettersEntered] = currentLetter;  //temporarily add the currently selected letter at the current position
+        name[lettersEntered] = currentLetter;  // Temporarily add the currently selected letter at the current position
         lettersEntered++;
-        name[lettersEntered] = '\0';  //make sure null-terminator is in place (after the last real letter)
-        //startPlayback(secondCount, sizeof(secondCount));
+        name[lettersEntered] = '\0';  // Make sure null terminator is in place (after the last locked letter)
+        //startPlayback(secondCount, sizeof(secondCount));  // Wanted to play a sound when locking in letter but for some reason it's very low pitched
         break;
 
-      case BUTTON_HOLD:
+      case BUTTON_HOLD:               // Hold to go back a letter
         if (lettersEntered > 0) {
           lettersEntered--;
           name[lettersEntered] = '\0';  // Clear that slot
@@ -437,7 +436,7 @@ void NameInput() {
     }
   }
 
-  strcpy(highScoreName, name);  //copy the contents of name into highScoreName
+  strcpy(highScoreName, name);  // Copy the contents of name into highScoreName
   EEPROM.put(addrName, highScoreName);
 }
 
@@ -579,7 +578,6 @@ void Game() {
   aimedAtLed -= 1;
 
   aimedAtLed = (aimedAtLed + numPixels) % numPixels; // might fix index issues
-  //led:
 
   unsigned long currentMillis = millis();
   if (currentMillis - previousMillis > clockwiseCheckInterval) {
@@ -612,28 +610,13 @@ void Game() {
     startFlashingLED(GetRandomPixel());  //start the LED flashing
   }
 
-
   randomSpawnRate = random(LED_SPAWN_MIN, LED_SPAWN_MAX);  //randomize the next spawn rate
 
-  //magnetic:
-  //  Serial.print(millis());
-  //  Serial.print("\t");
-  ///Serial.print(as5600.readAngle());
-  ///Serial.print("\t");
-  //Serial.println(as5600.rawAngle());
-  //Serial.println(as5600.rawAngle() * AS5600_RAW_TO_DEGREES);
-
-
-
-
-  
   //Serial.print("aimed at led: ");
   //Serial.println(aimedAtLed);
 
   for (int i = 0; i < MAX_FLASHING_LEDS; i++) {
     if (!flashingLeds[i].active) continue;  //skip inactive LEDs
-
-
 
     int forward = (flashingLeds[i].pixel - aimedAtLed + numPixels) % numPixels;
     int backward = (aimedAtLed - flashingLeds[i].pixel + numPixels) % numPixels;
@@ -657,7 +640,7 @@ void Game() {
         } 
 
         if (flashingLeds[i].hasLeftPixel) {
-          // Second pass logic - only if we've left the pixel since the first pass
+          // Second pass logic, only if we have left the pixel since the first pass
           if (flashingLeds[i].passedClockwise == isClockwise) {
             CollectLed(i, specialScoring);
             startPlayback(goCount, sizeof(goCount));
@@ -686,14 +669,12 @@ void Game() {
           //Serial.println("Been passed cant collect");
         }
       } else {
-        //startPlayback(miss, sizeof(miss));
-        //ResetCombo();
         //Serial.println("been passed = true");
         flashingLeds[i].beenPassed = true;
         flashingLeds[i].passedTime = millis();
       }
     }else{
-      // This is the case when delta > 1 (not aiming at this LED)
+      // This is the case when delta > 1 (not aiming at the LED)
       if (flashingLeds[i].color == colorC && flashingLeds[i].beenPassed && !flashingLeds[i].hasLeftPixel) {
         // Need to be at least 3 pixels away to count as "left"
         flashingLeds[i].hasLeftPixel = true;
@@ -734,13 +715,13 @@ void TurnOffLed(int index){
   strip.show();
 }
 
-int GetRandomPixel() {  //get a random pixel and make sure its not been used recently:
+int GetRandomPixel() {  // Get a random pixel and make sure its not been used recently:
   uint8_t randomPixel;
   bool isTooClose;
   uint8_t attempts = 0;
 
   do {
-    randomPixel = random(0, numPixels);  //generate a random pixel
+    randomPixel = random(0, numPixels);  // Generate a random pixel
     isTooClose = false;
 
       // Check proximity to aimedAtLed (with wraparound)
@@ -765,9 +746,8 @@ int GetRandomPixel() {  //get a random pixel and make sure its not been used rec
 
     }
     attempts++;
-    if (attempts > 10) break;  // prevent infinite loops if LEDs are full
-  } while (isTooClose);       //loop until randomPixel is a pixel not in the used array
-
+    if (attempts > 10) break;  // Prevent infinite loops if LEDs are full
+  } while (isTooClose);       // Loop until randomPixel is a pixel not too close to existing pixels/marker
 
   return randomPixel;
 }
@@ -775,14 +755,13 @@ int GetRandomPixel() {  //get a random pixel and make sure its not been used rec
 void startFlashingLED(int pixel) {
   static uint32_t lastColor = 0;
   static int sameColorCount = 0;
-  
 
-  for (int i = 0; i < MAX_FLASHING_LEDS; i++) {  //find an inactive LED slot
-    if (!flashingLeds[i].active) {
+  for (int i = 0; i < MAX_FLASHING_LEDS; i++) {  
+    if (!flashingLeds[i].active) {                // Find an inactive LED slot
       flashingLeds[i].active = true;
       flashingLeds[i].pixel = pixel;
-      flashingLeds[i].startTime = millis();       //record the start time
-      flashingLeds[i].lastToggleTime = millis();  //record the toggle time
+      flashingLeds[i].startTime = millis();       // Record the start time
+      flashingLeds[i].lastToggleTime = millis();  // Record the toggle time
       flashingLeds[i].ledOn = false;
       flashingLeds[i].beenPassed = false;
       flashingLeds[i].passedClockwise = false;
@@ -793,14 +772,14 @@ void startFlashingLED(int pixel) {
       return;
     }
   }
-  //no available slots
+  // No available slots
 }
 
 bool CheckForInbetweenSpawn(int randomPixel){
   int nearestLed = -1;
   int minDistance = numPixels;
 
-    // Find the nearest active LED in the specified direction
+  // Find the nearest active LED in the specified direction
   for (int i = 0; i < MAX_FLASHING_LEDS; i++) {
       if (!flashingLeds[i].active) continue;
       int ledPos = flashingLeds[i].pixel;
@@ -857,21 +836,21 @@ uint32_t DetermineColor(bool foundInbetween) {
 }
 
 void updateFlashingLEDs() {
-  unsigned long currentTime = millis();                                 //get current time
+  unsigned long currentTime = millis();                                 // Get current time
 
   for (int i = 0; i < MAX_FLASHING_LEDS; i++) {
-    if (!flashingLeds[i].active) continue;                              //skip inactive LEDs
+    if (!flashingLeds[i].active) continue;                              // Skip inactive LEDs
 
     FlashingLED &led = flashingLeds[i];       
 
     unsigned long lifeSpan = (led.color == colorC) ? specialLifespan : normalLifespan;
 
 
-    if (currentTime - led.startTime >= lifeSpan) {                  //check if LED lifespan is up
-      strip.setPixelColor(led.pixel, 0);                                //turn off LED
+    if (currentTime - led.startTime >= lifeSpan) {                      // Check if LED lifespan is up
+      strip.setPixelColor(led.pixel, 0);                                // Turn off LED
       led.ledOn = false;
       led.active = false;
-      strip.show();                                                     // update the strip
+      strip.show();                                                     // Update the strip
       startPlayback(miss, sizeof(miss));
       ResetCombo();
     
@@ -879,15 +858,15 @@ void updateFlashingLEDs() {
     }
     
 
-    if (currentTime - led.lastToggleTime >= led.delayTime) {      //check if its time to toggle
-      led.lastToggleTime = currentTime;                           //update the last toggle time
-      led.ledOn = !led.ledOn;                                     //toggle the LED state
+    if (currentTime - led.lastToggleTime >= led.delayTime) {      // Check if its time to toggle
+      led.lastToggleTime = currentTime;                           // Update the last toggle time
+      led.ledOn = !led.ledOn;                                     // Toggle the LED state
 
       if (led.ledOn) {
-        strip.setPixelColor(led.pixel, led.color);                //LED on
+        strip.setPixelColor(led.pixel, led.color);                // LED on
       } else {
-        strip.setPixelColor(led.pixel, 0);                        //LED off
-        led.delayTime = max(minBlinkDelay, led.delayTime * blinkAcceleration);             //decrease the delay to flash faster and faster
+        strip.setPixelColor(led.pixel, 0);                        // LED off
+        led.delayTime = max(minBlinkDelay, led.delayTime * blinkAcceleration);             // Decrease the delay to flash faster and faster
       }
       strip.show(); 
     }
