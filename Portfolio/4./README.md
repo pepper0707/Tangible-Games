@@ -1,4 +1,4 @@
-4. Technical documentation for the game, including circuit diagrams and code listings.
+### Technical documentation for the game, including circuit diagrams and code listings.
 
 ![FirstConcept](https://github.com/user-attachments/assets/f973db24-1871-4ad2-a5fd-ca5746d987d1)
 
