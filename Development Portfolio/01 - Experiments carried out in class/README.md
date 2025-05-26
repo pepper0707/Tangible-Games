@@ -1,4 +1,4 @@
-### 1. Descriptions of experiments carried out in class.
+# 1. Descriptions of experiments carried out in class.
 
 We began by conducting a series of experiments to familiarise ourselves with Arduino hardware and fundamental electronics principles. This included learning how to deliver the correct voltage (3.3V or 5V) to components and using resistors to regulate current. These initial experiments introduced us to a wide range of components, which was essential in helping us think creatively about how they could be incorporated into our game.   
 
