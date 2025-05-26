@@ -10,12 +10,12 @@ Early on our experiments were basic such as when we used a potentiometer to cont
 ## Find Max Light Experiment
 One particularly successful experiment involved combining a servo motor with a Light Dependent Resistor (LDR). We mounted the LDR on the servo and programmed a sweep across the motor’s range using the Arduino IDE. During this sweep, we continuously read values from the LDR via an analog pin, updating variables for both the light intensity and corresponding servo position. When the sweep completed, we could rotate the servo to point toward the brightest light source. 
 
-![LDR/Servo Experiment](https://github.com/pepper0707/Tangible-Games/blob/formatting/Development%20Portfolio/01%20-%20Experiments%20carried%20out%20in%20class/FindMaxLight/images/00.jpg)
+![LDR/Servo Experiment](FindMaxLight/images/00.jpg)
 
 ## LED Strip Experimentation
 A defining experiment in shaping our game was testing an LED strip. After successfully connecting it to our Arduino, we explored various functions from the NeoPixel library, such as fading effects, chasing lights, and other patterns that dynamically altered colours and LED positions. Our team was especially enthusiastic about incorporating the LED strip into our game, more so than any other component, as we saw a wide range of opportunities to use it for visually engaging and responsive player feedback.
 
-![LED Strip Experiment](https://github.com/pepper0707/Tangible-Games/blob/main/Development%20Portfolio/01%20-%20Experiments%20carried%20out%20in%20class/01.jpg)
+![LED Strip Experiment](01.jpg)
 
 ## Statement of attribution
 
