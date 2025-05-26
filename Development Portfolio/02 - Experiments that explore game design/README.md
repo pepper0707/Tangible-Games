@@ -13,4 +13,6 @@ Various experiments were carried out in class, one such relating to our game was
 
 ![Magnetic Encoder Diagram](MagneticEncoderDiagram.png)
 
+*Figure 1: [Magnetic Encoder Diagram Source](https://www.akm.com/global/en/products/rotation-angle-sensor/tutorial/magnetic-encoder/)*
+
 ## Statement of attribution
