@@ -15,4 +15,11 @@ While researching the feasibility of this approach, we came across magnetic enco
 
 Once we purchased a magnetic encoder we referred to the data sheet for correct wiring and other usage such as the purpose of its different registers. We temporarily attached the magnet to the end of a pen using blue tac so we could more easily rotate the magnet over the sensor for testing. We found that our values were more inconsistent than we would have liked and that the margin of error for having the magnet and the sensor centered was very small. We remedied this by switching from a 6mm to a 8mm magnet. We utilized the status registers of the as5600 which gave feedback on the magnitude of the magnet strength to dial in thee optimal distance the magnet should be from the sensor.
 
+![AS5600 wiring](06.jpg)
+*Figure 2: AS5600 Wiring*
+
+![Angle Output](05.png)
+
+*Figure 3: Raw angle and converted angle output from AS5600*
+
 ## Statement of attribution
