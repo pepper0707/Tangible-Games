@@ -1,3 +1,5 @@
 ### User documentation, such as: how to operate the game, any rules of play, health and safety warnings.
 To play our game, all the player must do is press the red button at the bottom left of the board, once done, the game will count down from 3, whereafter the game will start and the player must spin the record to align the arrow to the lights that are displayed. The blue lights must be spun to in a clockwise motion while the pink lights must be spun counterclockwise. You get 60 seconds to hit as many lights as possible and rack up the highest score possible. Once finished the player gets the opportunity to assign a name to their score, which will be remembered until the game is reset. The player can retry and try and beat their previous score.  
 Please do not spin the record unnecessarily fast or put too much pressure on the record as these can break the record. 
+
+## Statement of attribution
