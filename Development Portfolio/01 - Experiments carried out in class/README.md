@@ -15,6 +15,8 @@ One particularly successful experiment involved combining a servo motor with a L
 ## LED Strip Experimentation
 A defining experiment in shaping our game was testing an LED strip. After successfully connecting it to our Arduino, we explored various functions from the NeoPixel library, such as fading effects, chasing lights, and other patterns that dynamically altered colours and LED positions. Our team was especially enthusiastic about incorporating the LED strip into our game, more so than any other component, as we saw a wide range of opportunities to use it for visually engaging and responsive player feedback.
 
+![LED Strip Experiment](https://github.com/pepper0707/Tangible-Games/blob/main/Development%20Portfolio/01%20-%20Experiments%20carried%20out%20in%20class/01.jpg)
+
 ## Statement of attribution
 
 - Chloe and Alex: Helped code and put together FindMaxlight experiment
