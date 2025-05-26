@@ -9,3 +9,8 @@ One particularly successful experiment involved combining a servo motor with a L
 ![LDR/Servo Experiment](https://github.com/pepper0707/Tangible-Games/blob/formatting/Development%20Portfolio/01%20-%20Experiments%20carried%20out%20in%20class/FindMaxLight/images/00.jpg)
 
 Another experiment used a potentiometer to control the brightness of an LED. While simple, it got us thinking about rotation as a key mechanic and also highlighted the use of a potentiometer for variable resistance alongside other components such as a speaker, for volume control. 
+
+## Statement of attribution
+
+- Chloe and Alex: Helped code and put together FindMaxlight experiment
+- All Team Members: Helped figure out wiring for Led/Potentiometer experiment
