@@ -1,2 +1,4 @@
 ### 3. Game design ideas, leading up to the selected game design. Images of pencil drawings make excellent illustrations.
 We had an idea very early on to create a record spinning game, imitating DJ decks while creating a unique and fun game experience. Many different components were considered, such as using a rotary encoder as mentioned earlier which was replaced with a magnetic encoder instead, and the idea of using analog displays came up later than the rest of our game idea, and this allowed us to implement a scoring system. 
+
+## Statement of attribution
