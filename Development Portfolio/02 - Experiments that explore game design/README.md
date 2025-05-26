@@ -1,4 +1,4 @@
-# 2. Experiments that explore the game design space by testing ideas, evaluating different types of interaction, and considering the user experience. Remember to write-up any unsuccessful or rejected experiments as these show your creative process. 
+# 2. Game Design Experiments and player interaction evalutation
 
 ## Finding a suitable component for capturing rotational data
 
