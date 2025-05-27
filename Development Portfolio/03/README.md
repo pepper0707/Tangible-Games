@@ -1,6 +1,6 @@
 ### 3. Game design ideas, leading up to the selected game design. Images of pencil drawings make excellent illustrations.
 
-We initially bounced around a few vague game concepts, but none of them had time to develop into anything substantial, as we quickly locked onto our core idea early on in the process. The main mechanic was relatively simple and took inspiration from the back-and-forth spinning motion often seen on DJ decks.
+We initially bounced around a few vague game concepts, but none of them had time to develop into anything substantial, because we quickly locked onto our core idea early on in the process. The main mechanic was relatively simple and took inspiration from the back-and-forth spinning motion often seen on DJ decks.
 In our game, the player spins a physical disc or record, aiming to align a marker on the disc with specific positions around its edge. At these positions, a light would have a certain colour which corresponds to a direction: one for clockwise, the other for counterclockwise. Based on the colour shown, the player must spin the disc in the correct direction to reach the corresponding target point. If they got to the position fast enough before it decayed and travelled in the correct  direction they would score points. We hoped this mechanic would encourage rapid, responsive input and create an engaging physical interaction loop.
 
 Below is an early sketch of the game concept, created to ensure the entire team had a shared understanding of the idea. 
