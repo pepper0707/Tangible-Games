@@ -74,7 +74,7 @@ To address this, we implemented our own timed delay between comparisons to smoot
 
 ### Managing LEDs
 
-One of the first software hurdles to overcome was the spawning and management of multiple different LEDs at the same time, each counting down at their own rates and with other different variables associated with them. The clear approach was to use a struct, which is called FlashingLED. This struct encapsulates all the state and timing information needed for each individual LED, such as whether it is active, its color, position on the strip, and timing variables for both its lifespan and blink rate and more. By maintaining an array of FlashingLED structs, the we can efficiently manage several independent LEDs, updating their states together in the updateFlashingLEDs(); function which is called in the main game loop. This design also makes it straightforward for us to extend the game with new LED behaviors or interaction rules in the future and something we did continually through development. Here is what that struct looks like:
+One of the first software hurdles to overcome was the spawning and management of multiple different LEDs at the same time, each counting down at their own rates and with other different variables associated with them. The clear approach was to use a struct, which is called `FlashingLED`. This struct encapsulates all the state and timing information needed for each individual LED, such as whether it is active, its color, position on the strip, and timing variables for both its lifespan and blink rate and more. By maintaining an array of FlashingLED structs, the we can efficiently manage several independent LEDs, updating their states together in the `updateFlashingLEDs()` function which is called in the main game loop. This design also makes it straightforward for us to extend the game with new LED behaviors or interaction rules in the future and something we did continually through development. Here is what that struct looks like:
 ``` c++
 // Structure for a flashing LED
 struct FlashingLED {
@@ -97,6 +97,42 @@ struct FlashingLED {
   unsigned long passedTime;       // When LED was passed
   int delayTime;                  // Current blinking interval
 };
+```
+### Special/Third Colour handling 
+The special third-color LED requires two spins to be successfully collected, with the second spin needing to match the direction of the first. While this seemed straightforward to implement at first, we encountered an issue where the logic for detecting the second spin was being triggered immediately after the first.
+
+To fix this, we needed to ensure that the marker had moved a sufficient distance away from the LED before it could trigger the second spin. This required adding a new boolean variable, `hasLeftPixel`, to the `FlashingLed struct`. This variable is set to true once the difference between the marker's current position and the LED's index exceeds a value of 1, as shown here:
+
+``` c++
+// This is the case when delta > 1 (not aiming at the LED)
+      if (flashingLeds[i].color == colorC && flashingLeds[i].beenPassed && !flashingLeds[i].hasLeftPixel) {
+        // Need to be at least 3 pixels away to count as "left"
+        flashingLeds[i].hasLeftPixel = true;
+```
+Then the rest of the specfic code for the special LED/colour looks like this:
+
+``` c++
+if (flashingLeds[i].color == colorC) {
+        if (!flashingLeds[i].beenPassed) {
+          // First pass logic
+          flashingLeds[i].beenPassed = true;
+          flashingLeds[i].passedClockwise = isClockwise;
+          flashingLeds[i].hasLeftPixel = false; // Reset this flag
+          startPlayback(secondCount, sizeof(secondCount));
+        } 
+
+        if (flashingLeds[i].hasLeftPixel) {
+          // Second pass logic, only if we have left the pixel since the first pass
+          if (flashingLeds[i].passedClockwise == isClockwise) {
+            CollectLed(i, specialScoring);
+            startPlayback(goCount, sizeof(goCount));
+          } else {
+            TurnOffLed(i);
+            startPlayback(miss, sizeof(miss));
+          }
+        }
+        continue;
+      }
 ```
 
 ### Storing High Score Data
