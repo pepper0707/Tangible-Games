@@ -19,3 +19,5 @@ As of right now the main feedback for collecting and missing LEDs is auditory. T
 Our game is rather physically demanding making it not ideal for people with certain disabilities, further removing physical resistance with a higher quality bearing might alleviate this issue.
 
 ## Statement of attribution
+- Chloe and Alex: Helped write evaluation and consider accessibility concerns
+- Whole team: Helped with Evaluation
