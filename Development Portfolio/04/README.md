@@ -179,6 +179,17 @@ Which are used in this line from inside `startFlashingLED`:
 ``` c++
 flashingLeds[i].color = DetermineColor(CheckForInbetweenSpawn(pixel));
 ```
+### Preventing unintended play
+
+During playtesting, we realized that players could exploit the system by moving toward an LED in any direction and then quickly reversing course if their initial direction didn’t match the LED’s requirement. To prevent this, we introduced a `beenPassed` boolean in the `FlashingLED` struct. This flag prevents an LED from being collected if the player passes it in the wrong direction, setting beenPassed to true upon the first incorrect pass.
+
+However, since the LED still needs to be collected eventually, we needed a way to reset `beenPassed` to false. Initially, we did this upon the successful collection of any other LED. The reasoning was that if a player was playing honestly, they would only pass an LED in the wrong direction on their way to another, so the reset would happen naturally and go unnoticed.
+
+Despite this, we encountered rare edge cases where unlucky LED spawns made it difficult for players to trigger that reset. To address this, we implemented a time-based fallback: `beenPassed` would automatically reset to false after a certain period, ensuring that the LED could be collected again without soft-locking or player frustration.
+
+Below you can see some notes made for this idea:
+![unintended play note](Notes2.jpg)
+
 
 ### Special/Third Colour handling 
 The special third-color LED requires two spins to be successfully collected, with the second spin needing to match the direction of the first. While this seemed straightforward to implement at first, we encountered an issue where the logic for detecting the second spin was being triggered immediately after the first.
