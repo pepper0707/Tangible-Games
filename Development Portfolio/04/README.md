@@ -32,6 +32,33 @@
 
 ## Key software sections and challanges
 
+### Managing LEDs
+
+One of the first software hurdles to overcome was the spawning and management of multiple different LEDs at the same time, each counting down at their own rates and with other different variables associated with them. The clear approach was to use a struct, which is called FlashingLED. This struct encapsulates all the state and timing information needed for each individual LED, such as whether it is active, its color, position on the strip, and timing variables for both its lifespan and blink rate and more. By maintaining an array of FlashingLED structs, the we can efficiently manage several independent LEDs, updating their states together in the updateFlashingLEDs(); function which is called in the main game loop. This design also makes it straightforward for us to extend the game with new LED behaviors or interaction rules in the future and something we did continually through development. Here is what that struct looks like:
+``` c++
+// Structure for a flashing LED
+struct FlashingLED {
+  // State flags
+  bool active = false;            // Whether this LED is currently active
+  bool ledOn;                     // Current LED illumination state
+  bool beenPassed;                // Whether LED has been passed but not collected
+  bool passedClockwise;           // Direction LED was passed in
+  bool hasLeftPixel;              // Whether we've moved away after passing
+  
+  // Position information
+  uint8_t pixel;                  // LED position on the strip
+  
+  // Visual properties
+  uint32_t color;                 // LED color
+  
+  // Timing variables
+  unsigned long startTime;        // When LED was spawned
+  unsigned long lastToggleTime;   // Last time LED was toggled
+  unsigned long passedTime;       // When LED was passed
+  int delayTime;                  // Current blinking interval
+};
+```
+
 ### Storing High Score Data
 
 Keeping track of the high score was important to us, as we believed it would encourage competition between players and motivate them to replay and improve. However, a high score without an associated name wouldn't achieve this goal. To address this, we leveraged the rotational input method we had already developed.
