@@ -22,8 +22,14 @@ Once we purchased a magnetic encoder we referred to the data sheet for correct w
 
 *Figure 3: Raw angle and converted angle output from AS5600*
 
+## Providing player with feedback
+
 We knew it would be important to give the player as much feedback about the game as possible so that meant having audio and real time displaying of information like the score. So, we experimented with different speaker and display configurations. In the picture below you can see us testing out a speaker that was provided to us, however in that image we are connecting the speaker directly. We did this initially because it was simpler, but we later added an amp to give us a louder and clearer sound. We additionally added a potentiometer so we could adjust the sound, which is important so each player can adjust it to a level they feel is comfortable.
 
 ![Speaker](02.jpg)
 *Figure 3: Testing of spekaer and LED strip*
+
+For the displays, we was fairly certain that showing just a few digits per display would be sufficient, so a 4-digit seven-segment display seemed like a reasonable choice. We purchased two such displays, but due to not thoroughly reading the datasheet and some poor planning, we overlooked the fact that these displays communicated via I2C and required the Arduino’s SDA and SCL pins. The Arduino Uno only has one set of these pins and they were already in use by the magnetic encoder. Even if they weren’t, we couldn’t connect more than one display to the same I2C bus without additional hardware.
+As a result, we had to find an alternative segment display with a different communication method. We settled on a TM1637 seven-segment display, which can be controlled using just two general-purpose digital pins.
+
 ## Statement of attribution
