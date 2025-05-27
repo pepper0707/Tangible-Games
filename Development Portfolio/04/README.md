@@ -1,4 +1,4 @@
-# Technical documentation for the game, including circuit diagrams and code listings.
+# Technical documentation
 
 ## Game Overview
 
