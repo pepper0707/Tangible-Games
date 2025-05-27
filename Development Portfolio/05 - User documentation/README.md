@@ -23,3 +23,4 @@ We created a basic rules poster for players to quickly reference if they get con
 
 
 ## Statement of attribution
+- Chloe: Created Rules Poster  
