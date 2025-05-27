@@ -1,6 +1,6 @@
 # Technical documentation for the game, including circuit diagrams and code listings.
 
-## List Of Components
+## List Of Used Components
 
 - Arduino Uno: Microcontroller
 -	AS5600 Magnetic Encoder: Detects the angle of rotation.
