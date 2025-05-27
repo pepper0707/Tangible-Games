@@ -16,4 +16,6 @@ Even as a prototype, the game stands out visually, with vibrant coloured LEDs, d
 
 As of right now the main feedback for collecting and missing LEDs is auditory. This could cause issues for players with hearing impairment and so our game could be made more accessible by having greater visual cues, such as flashing the LED strip depending on if they hit or miss a LED.
 
+Our game is rather physically demanding making it not ideal for people with certain disabilities, further removing physical resistance with a higher quality bearing might alleviate this issue.
+
 ## Statement of attribution
