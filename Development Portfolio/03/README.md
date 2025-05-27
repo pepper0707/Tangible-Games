@@ -13,7 +13,7 @@ The sketch includes generic screens to represent the positions the player needs 
 
 Firstly, a single screen could display multiple pieces of information, such as the colour indicating the direction and arrows to signify a double spin, as shown in the sketch. Secondly, our initial design aimed for the player to reach the target position exactly at the end of the countdown. However, we later refined the concept, shifting the objective to simply reaching the target position within a set time limit. Despite this change, we wanted to retain the idea of double spins, as we felt it added some good variety and encouraged more dynamic player movement, contributing to a potential flow state during gameplay. To accommodate this, we introduced a third colour. Unlike the others, this colour doesn’t indicate a direction (clockwise or counterclockwise); instead, it signals that the player must perform a double spin to complete the action.
 
-![Note on addition of third colour](Notes3.png)
+![Note on addition of third colour](Notes3.jpg)
 
 *Figure 2: Notes on possible additon of a third colour type*
 ## Statement of attribution
