@@ -11,4 +11,10 @@
 - Adafruit PAM8302 Audio Amplifier: Used in conjuction with speaker
 - Potentiometer - Used in conjuction with speaker
 
+## Dependencies
+•	[AS5600 library](https://github.com/RobTillaart/AS5600)  
+•	[Adafruit NeoPixel library](https://github.com/adafruit/Adafruit_NeoPixel)  
+•	[TM1637 library](https://github.com/avishorp/TM1637)  
+•	[PCM library for sound playback](https://github.com/damellis/PCM)  
+
 ## Statement of attribution
