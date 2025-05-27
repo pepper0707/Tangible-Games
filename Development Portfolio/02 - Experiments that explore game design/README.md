@@ -25,5 +25,5 @@ Once we purchased a magnetic encoder we referred to the data sheet for correct w
 We knew it would be important to give the player as much feedback about the game as possible so that meant having audio and real time displaying of information like the score. So, we experimented with different speaker and display configurations. In the picture below you can see us testing out a speaker that was provided to us, however in that image we are connecting the speaker directly. We did this initially because it was simpler, but we later added an amp to give us a louder and clearer sound. We additionally added a potentiometer so we could adjust the sound, which is important so each player can adjust it to a level they feel is comfortable.
 
 ![Speaker](02.jpg)
-*Figure 3: Testing of spekaer and LED strip
+*Figure 3: Testing of spekaer and LED strip*
 ## Statement of attribution
