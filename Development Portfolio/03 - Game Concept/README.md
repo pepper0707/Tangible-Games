@@ -17,3 +17,4 @@ Firstly, a single screen could display multiple pieces of information, such as t
 
 *Figure 2: Notes on possible additon of a third colour type*
 ## Statement of attribution
+- Chloe: Created initial concept and accompanying sketch. Also created the notes seen.  
