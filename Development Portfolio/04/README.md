@@ -32,6 +32,20 @@
 
 ## Key software sections and challanges
 
+### Converting from angle to pixel index
+
+To determine which LED the marker on the record was pointing toward, we needed to convert the angle provided by our magnetic encoder into a corresponding LED index. This was achieved using the following lines of code:
+``` c++
+  aimedAtLed = round((angle / 360.0) * 61) % 61;
+  aimedAtLed = (numPixels)-aimedAtLed;  // Reverse direction
+  aimedAtLed -= 1;
+
+  aimedAtLed = (aimedAtLed + numPixels) % numPixels; // Account for wrap around
+```
+Our strip has 60 pixels but at the point where the beginning of the strip meets the end of the strip we made sure the gap was consistent with the spacing between the LEDs. We treated this gap as if it were a 61st “blank” LED, which is why you'll see the value 61 used in our calculations. This step was crucial in maintaining accurate synchronization between the angle data from the magnetic encoder and the corresponding LED index.
+
+We had to reverse the direction because the LED strip was accidentally mounted so that its indices increased in an anti-clockwise direction. Additionally, we needed to ensure that the LED index wrapped around correctly when passing the point where the strip’s ends meet. This was handled using the modulo operation.
+
 ### Managing LEDs
 
 One of the first software hurdles to overcome was the spawning and management of multiple different LEDs at the same time, each counting down at their own rates and with other different variables associated with them. The clear approach was to use a struct, which is called FlashingLED. This struct encapsulates all the state and timing information needed for each individual LED, such as whether it is active, its color, position on the strip, and timing variables for both its lifespan and blink rate and more. By maintaining an array of FlashingLED structs, the we can efficiently manage several independent LEDs, updating their states together in the updateFlashingLEDs(); function which is called in the main game loop. This design also makes it straightforward for us to extend the game with new LED behaviors or interaction rules in the future and something we did continually through development. Here is what that struct looks like:
