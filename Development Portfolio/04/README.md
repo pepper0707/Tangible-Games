@@ -252,5 +252,11 @@ In addition to storing the high score and name, we also store an initialization 
 ### Audio Playback
 For audio playback, we took an unconventional approach that allowed us to achieve relatively detailed sound without needing an SD card module, which we couldn’t use due to limited available pins. Instead, we used the PCM library, which enables audio files to be converted into a char array and stored in the Arduino’s flash memory. This method let us play back short sound effects directly from memory without the need for additional hardware.
 
+## Images showing game construction progress
+
+![01](07.jpg)
+![02](08.jpg)
+![03](09.jpg)
+![04](10.jpg)
 
 ## Statement of attribution
