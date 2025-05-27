@@ -98,6 +98,88 @@ struct FlashingLED {
   int delayTime;                  // Current blinking interval
 };
 ```
+### Spawning Logic
+
+An issue that was quickly fixed early on was our random spawning having the same pattern each run, this was fixed by getting a seed from random data output from an empty analog pin using: 
+``` c++
+ randomSeed(analogRead(0));          // Gets random seed using random data from empty analog pin
+```
+LED spawning was originally handled just randomly, with only a basic check to prevent LEDs from appearing in the exact same position. However, through playtesting, we identified several improvements that could make the game feel more intuitive and engaging.
+
+A simple but effective change was to prevent LEDs from spawning within a small range of existing LEDs, rather than just checking for exact position overlaps. We applied a similar rule to the marker, ensuring that no new LEDs would appear too close to its current position. This greatly increases the minimum amount of movement the player has to do.
+
+The more complex change was making it so LEDs between the marker and the nearest LED in the direction the marker is moving would only spawn as the opposite colour of that direction. This prevented accidental collections of LEDs that while effective in completing the games goal, was not rewarding for the player. 
+
+Below, you can see some pseudocode and a rough diagram that outlines this implementation:
+![Spawning Logic Notes](Notes1.jpg)
+
+The final code ended up split into these two functions:
+``` c++
+bool CheckForInbetweenSpawn(int randomPixel){
+  int nearestLed = -1;
+  int minDistance = numPixels;
+
+  // Find the nearest active LED in the specified direction
+  for (int i = 0; i < MAX_FLASHING_LEDS; i++) {
+      if (!flashingLeds[i].active) continue;
+      int ledPos = flashingLeds[i].pixel;
+      int distance = 0;
+
+      if (isClockwise) {
+        distance = (aimedAtLed - ledPos + numPixels) % numPixels;
+        if (distance > 0 && distance < minDistance) {
+          minDistance = distance;
+          nearestLed = ledPos;
+          //Serial.print("Nearest led: ");
+          //Serial.println(nearestLed);
+        }
+      } else {
+        distance = (ledPos - aimedAtLed + numPixels) % numPixels;
+        if (distance > 0 && distance < minDistance) {
+          minDistance = distance;
+          nearestLed = ledPos;
+          //Serial.print("Nearest led: ");
+          //Serial.println(nearestLed);
+        }
+      }
+  }
+
+  // Get all LEDs between marker and nearest LED 
+  bool found = false;
+  if (nearestLed != -1) {
+    int pos = aimedAtLed;
+    while (true) {
+      // Move in the correct direction
+      pos = isClockwise ? (pos + 1) % numPixels : (pos - 1 + numPixels) % numPixels;
+      if (pos == nearestLed) break;
+      if (pos == randomPixel) {
+        found = true;
+        break;
+      }
+    }
+  }
+  return found;
+}
+
+uint32_t DetermineColor(bool foundInbetween) {
+  uint8_t randVal = random(100);  // 0–99
+
+  if (randVal < colorCRarity) {
+    return colorC;
+  }
+
+  if(foundInbetween){
+    return isClockwise ? colorB : colorA;
+  }
+
+  return (random(2) == 0) ? colorA : colorB;
+}
+```
+Which are used in this line from inside `startFlashingLED`:
+``` c++
+flashingLeds[i].color = DetermineColor(CheckForInbetweenSpawn(pixel));
+```
+
 ### Special/Third Colour handling 
 The special third-color LED requires two spins to be successfully collected, with the second spin needing to match the direction of the first. While this seemed straightforward to implement at first, we encountered an issue where the logic for detecting the second spin was being triggered immediately after the first.
 
