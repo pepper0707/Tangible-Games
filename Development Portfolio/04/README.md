@@ -2,6 +2,9 @@
 
 ## Key software sections and challanges
 
+### Audio Playback
+For audio playback, we took an unconventional approach that allowed us to achieve relatively detailed sound without needing an SD card module, which we couldn’t use due to limited available pins. Instead, we used the PCM library, which enables audio files to be converted into a char array and stored in the Arduino’s flash memory. This method let us play back short sound effects directly from memory without the need for additional hardware.
+
 ## Game Overview
 
 ### Game Flow
