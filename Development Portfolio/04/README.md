@@ -2,6 +2,38 @@
 
 ## Key software sections and challanges
 
+### Storing High Score Data
+
+Keeping track of the high score was important to us, as we believed it would encourage competition between players and motivate them to replay and improve. However, a high score without an associated name wouldn't achieve this goal. To address this, we leveraged the rotational input method we had already developed.
+
+When a new high score is achieved, the `NameInput()` function is called. In this function, the player can spin the record to select a letter from the alphabet, then press a button to confirm the selection and move to the next letter. They can also hold down the button to go back to the previous later if they want to make a change. This process repeats until all four letters of the name are entered.
+Once the name is entered, both the high score and the corresponding name are stored in EEPROM, a type of non-volatile memory. This ensures the data persists even after the system is powered off.
+
+In addition to storing the high score and name, we also store an initialization flag  which can be any unique value (in our case, 123). On startup, we check whether this flag is present. If it's missing or incorrect, we reinitialize the high score data to default values. This also allows for resetting the stored data, which can be done during the idle phase of the game by holding down the button for a few seconds. Below is a snippet of the initialization code.
+``` c++
+  uint8_t flag;
+  EEPROM.get(addrFlag, flag);
+
+  if (flag != initFlag) {                           // First run,  initialize high score
+    char emptyName[5];
+    for (int i = 0; i < 4; i++) {
+      emptyName[i] = '-';
+    }
+    emptyName[4] = '\0';
+
+    EEPROM.put(addrName, emptyName);
+    EEPROM.put(addrHighScore, (uint16_t)0);
+    EEPROM.put(addrFlag, initFlag);
+    Serial.println("EEPROM initialized.");
+  } else {
+    Serial.println("EEPROM already initialized.");
+  }
+
+  EEPROM.get(addrHighScore, highScore);
+  EEPROM.get(addrName, highScoreName);
+  if (highScore > 9999) highScore = 9999;
+```
+
 ### Audio Playback
 For audio playback, we took an unconventional approach that allowed us to achieve relatively detailed sound without needing an SD card module, which we couldn’t use due to limited available pins. Instead, we used the PCM library, which enables audio files to be converted into a char array and stored in the Arduino’s flash memory. This method let us play back short sound effects directly from memory without the need for additional hardware.
 
