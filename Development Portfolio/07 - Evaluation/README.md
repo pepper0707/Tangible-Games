@@ -1,4 +1,4 @@
-# 7. An in-depth evaluation, for example discussing playability, engagement, and ideas for improvement. The evaluation must comment on the game's accessibility, and how any identified accessibility issues might be addressed.
+# 7. Evaluation and Accessibility
 
 # Areas of success
 Our game delivers a complete and polished gameplay experience. It features a strong core loop with gameplay that is both physically and mentally stimulating. The scoring system encourages replayability and fosters healthy competition between players. Two difficulty modes allow players to progress at their own pace, with the advanced mode introducing entirely new mechanics alongside increased challenge; keeping the experience fresh and rewarding.
