@@ -1,7 +1,14 @@
-### Technical documentation for the game, including circuit diagrams and code listings.
+# Technical documentation for the game, including circuit diagrams and code listings.
 
-![FirstConcept](https://github.com/user-attachments/assets/f973db24-1871-4ad2-a5fd-ca5746d987d1)
+## List Of Components
 
-https://github.com/user-attachments/assets/089dc2bd-f79f-490e-a3c2-a9a0c502b18c
+- Arduino Uno: Microcontroller
+-	AS5600 Magnetic Encoder: Detects the angle of rotation.
+-	Adafruit NeoPixel Strip: with 60 individually addressable RGB LEDs.
+-	TM1637 Segment Displays: Three 4-digit displays for showing score, combo, and timer.
+- Arcade Pushbutton: Used for input (starting game, confirming name selection and difficulty, holding to reset high score).
+- 3" Speaker - 4 Ohm 3 Watt
+- Adafruit PAM8302 Audio Amplifier: Used in conjuction with speaker
+- Potentiometer - Used in conjuction with speaker
 
 ## Statement of attribution
