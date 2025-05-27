@@ -577,7 +577,7 @@ void Game() {
   aimedAtLed = (numPixels)-aimedAtLed;  // Reverse direction
   aimedAtLed -= 1;
 
-  aimedAtLed = (aimedAtLed + numPixels) % numPixels; // might fix index issues
+  aimedAtLed = (aimedAtLed + numPixels) % numPixels; // Account for wrap around
 
   unsigned long currentMillis = millis();
   if (currentMillis - previousMillis > clockwiseCheckInterval) {
