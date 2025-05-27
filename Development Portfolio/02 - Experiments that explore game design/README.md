@@ -32,4 +32,10 @@ We knew it would be important to give the player as much feedback about the game
 For the displays, we was fairly certain that showing just a few digits per display would be sufficient, so a 4-digit seven-segment display seemed like a reasonable choice. We purchased two such displays, but due to not thoroughly reading the datasheet and some poor planning, we overlooked the fact that these displays communicated via I2C and required the Arduino’s SDA and SCL pins. The Arduino Uno only has one set of these pins and they were already in use by the magnetic encoder. Even if they weren’t, we couldn’t connect more than one display to the same I2C bus without additional hardware.
 As a result, we had to find an alternative segment display with a different communication method. We settled on a TM1637 seven-segment display, which can be controlled using just two general-purpose digital pins.
 
+## TinkerCad/Software Testing
+
+Before investing time in physical assembly, we chose to develop and test some of the software using TinkerCad. In the video below, you can see our code in action as it randomly turns LEDs on and off along a NeoPixel ring. The LEDs also flash to visually represent the time remaining before they switch off and a sound is played when they do so.
+
+https://github.com/user-attachments/assets/089dc2bd-f79f-490e-a3c2-a9a0c502b18c
+
 ## Statement of attribution
