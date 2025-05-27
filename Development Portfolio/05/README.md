@@ -1,5 +1,25 @@
-### User documentation, such as: how to operate the game, any rules of play, health and safety warnings.
-To play our game, all the player must do is press the red button at the bottom left of the board, once done, the game will count down from 3, whereafter the game will start and the player must spin the record to align the arrow to the lights that are displayed. The blue lights must be spun to in a clockwise motion while the pink lights must be spun counterclockwise. You get 60 seconds to hit as many lights as possible and rack up the highest score possible. Once finished the player gets the opportunity to assign a name to their score, which will be remembered until the game is reset. The player can retry and try and beat their previous score.  
-Please do not spin the record unnecessarily fast or put too much pressure on the record as these can break the record. 
+# User documentation, such as: how to operate the game, any rules of play, health and safety warnings.
+
+## An outline of how to play our game 
+
+- The player must first press the red button at the bottom left of the board to start.
+
+- You will then have the option to choose between two difficulties (One with special LEDS and one without). You do this by moving the marker to either the left or right side and the pressing the button to confirm. After a 3 second countdown will start
+
+- You must spin the record such that the marker passes a LED in the correct direction. Cyan lights must be passed clockwise and Pink lights must be passed anti-clockwise. If you chose difficulty 2 you may have Green lights. For these all you must do is spin past them twice without changing your direction.
+
+- The game lasts for 60 seconds if you rack up enough points to beat the high score you will be prompted to enter your name. So that your score can be recorded for other players too see.
+
+- You can now repeat to play again.
+
+We created a basic rules poster for players to quickly reference if they get confused on colours mid game:
+![Rules](RulesPoster.png)
+
+## Health and saftey warnings
+- There are some exposed electronics that players clothing could get caught on. So it might be advisable to roll up your sleeves if applicable.
+- The record is attached to with nuts and bolts that are exposed on top of the record. If spinning the record overly aggressively these could run into the players hand or fingers.
+- The push button is rather crudely constructed and has some sharp edges. We did  attempt to cover them with blue tac but its not a foolproof fix and a player could potentially harm themselves if they missed the button and pressed very firmly on the blue tac area.
+
+
 
 ## Statement of attribution
