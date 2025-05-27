@@ -46,6 +46,32 @@ Our strip has 60 pixels but at the point where the beginning of the strip meets 
 
 We had to reverse the direction because the LED strip was accidentally mounted so that its indices increased in an anti-clockwise direction. Additionally, we needed to ensure that the LED index wrapped around correctly when passing the point where the strip’s ends meet. This was handled using the modulo operation.
 
+### Determining direction
+
+The other critical input we needed from the player was the direction in which they were rotating the record(clockwise or anti-clockwise). To determine this, we compared the current angle from the magnetic encoder with a previous angle value.
+
+Initially, we attempted to track direction by simply storing the previous angle in the main loop and comparing it to the current angle on each iteration. However, during testing we found this method too inconsistent due to noise and small fluctuations in the data.
+
+To address this, we implemented our own timed delay between comparisons to smooth out the readings and ensure more reliable direction detection. This approach involves checking the angle at defined intervals rather than every frame, which greatly improved stability. The implementation looks like this:
+``` c++
+  unsigned long currentMillis = millis();
+  if (currentMillis - previousMillis > clockwiseCheckInterval) {
+    previousMillis = currentMillis;
+    lastAngle = angle;
+  }
+
+  float angleDelta = angle - lastAngle;
+
+  if (angleDelta > 180.0) {
+    angleDelta -= 360.0;
+  } else if (angleDelta < -180.0) {
+    angleDelta += 360.0;
+  }
+
+  isClockwise = angleDelta > 0;
+  isClockwise = !isClockwise;
+```
+
 ### Managing LEDs
 
 One of the first software hurdles to overcome was the spawning and management of multiple different LEDs at the same time, each counting down at their own rates and with other different variables associated with them. The clear approach was to use a struct, which is called FlashingLED. This struct encapsulates all the state and timing information needed for each individual LED, such as whether it is active, its color, position on the strip, and timing variables for both its lifespan and blink rate and more. By maintaining an array of FlashingLED structs, the we can efficiently manage several independent LEDs, updating their states together in the updateFlashingLEDs(); function which is called in the main game loop. This design also makes it straightforward for us to extend the game with new LED behaviors or interaction rules in the future and something we did continually through development. Here is what that struct looks like:
