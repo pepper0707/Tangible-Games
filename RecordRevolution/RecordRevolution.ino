@@ -579,22 +579,22 @@ void Game() {
 
   aimedAtLed = (aimedAtLed + numPixels) % numPixels; // Account for wrap around
 
-  unsigned long currentMillis = millis();
-  if (currentMillis - previousMillis > clockwiseCheckInterval) {
-    previousMillis = currentMillis;
-    lastAngle = angle;
-  }
+    unsigned long currentMillis = millis();
+    if (currentMillis - previousMillis > clockwiseCheckInterval) {
+      previousMillis = currentMillis;
+      lastAngle = angle;
+    }
 
-  float angleDelta = angle - lastAngle;
+    float angleDelta = angle - lastAngle;
 
-  if (angleDelta > 180.0) {
-    angleDelta -= 360.0;
-  } else if (angleDelta < -180.0) {
-    angleDelta += 360.0;
-  }
+    if (angleDelta > 180.0) {
+      angleDelta -= 360.0;
+    } else if (angleDelta < -180.0) {
+      angleDelta += 360.0;
+    }
 
-  isClockwise = angleDelta > 0;
-  isClockwise = !isClockwise;
+    isClockwise = angleDelta > 0;
+    isClockwise = !isClockwise;
 
   // Serial.print("last Angle: ");
   // Serial.println(lastAngle);
@@ -767,7 +767,7 @@ void startFlashingLED(int pixel) {
       flashingLeds[i].passedClockwise = false;
       flashingLeds[i].hasLeftPixel = false;
 
-      flashingLeds[i].color = DetermineColor(CheckForInbetweenSpawn(pixel));
+        
       flashingLeds[i].delayTime = (flashingLeds[i].color == colorC) ? specialLifespan : normalLifespan * initialBlinkProportion;
       return;
     }
