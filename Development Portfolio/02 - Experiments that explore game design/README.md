@@ -39,3 +39,5 @@ Before investing time in physical assembly, we chose to develop and test some of
 https://github.com/user-attachments/assets/089dc2bd-f79f-490e-a3c2-a9a0c502b18c
 
 ## Statement of attribution
+-Chloe: Did initial software testing/coding in TinkerCad and primarily responsible for research into different encoder types, specifically the magnetic encoder
+-Alex and Ethan: Took lead on audio and display setup/testing
