@@ -1,4 +1,4 @@
-# User documentation, such as: how to operate the game, any rules of play, health and safety warnings.
+# User documentation and health and safety warnings.
 
 ## An outline of how to play our game 
 
