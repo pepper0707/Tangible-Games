@@ -272,3 +272,6 @@ For audio playback, we took an unconventional approach that allowed us to achiev
 ![05](11.jpg)
 
 ## Statement of attribution
+- Chloe: Core coding and physical construction
+- Ethan: Coding and bugfixing assistance
+- Alex: Physical construction and Audio assistance
