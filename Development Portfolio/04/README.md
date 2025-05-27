@@ -17,4 +17,15 @@
 •	[TM1637 library](https://github.com/avishorp/TM1637)  
 •	[PCM library for sound playback](https://github.com/damellis/PCM)  
 
+## Game Flow
+1.	Idle State: Displays LED strip animation and high score. Waits for button input.
+2.	Start Game: Player selects difficulty, then a countdown begins.
+3.	Gameplay:  
+•	LEDs flash on the strip  
+•	Collect LEDs by aiming and rotating in the correct direction.  
+•	Special color LEDs require two rotations.  
+•	Score and combo are updated; missed LEDs reset combo.  
+4.	End Game: If the score beats the high score, the player enters their name.
+5.	High Score: Stored in EEPROM for persistence.
+
 ## Statement of attribution
