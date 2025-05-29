@@ -769,6 +769,7 @@ void startFlashingLED(int pixel) {
 
         
       flashingLeds[i].delayTime = (flashingLeds[i].color == colorC) ? specialLifespan : normalLifespan * initialBlinkProportion;
+      flashingLeds[i].color = DetermineColor(CheckForInbetweenSpawn(pixel));
       return;
     }
   }
